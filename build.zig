@@ -24,6 +24,7 @@ pub fn build(b: *std.build.Builder) void {
         examples_codegen.addPackagePath("firmly-zig", "firmly-zig.zig");
         examples.linkLibrary(lib);
         examples_codegen.install();
+        b.installBinFile("example/test.bf", "test.bf");
     }
 
     var main_tests = b.addTest("src/main.zig");

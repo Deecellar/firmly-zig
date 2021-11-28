@@ -16,9 +16,9 @@ fn initializeFirm() void {
 fn createGraph() ?*firm.ir_graph {
     var methodType : ?*firm.ir_type = firm.newTypeMethod(0, 1, 0, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
     var intType : ?*firm.ir_type= firm.newTypePrimitive(firm.mode_Is);
-    firm.setMethodParamType(methodType, 0, intType);
+    firm.setMethodResType(methodType, 0, intType);
 
-    var id = firm.irPlatformMangleGlobal("bfMain");
+    var id = firm.irPlatformMangleGlobal("bf_main");
     var globalType = firm.getGlobType();
     var entity = firm.newEntity(globalType, id, methodType);
 
@@ -246,7 +246,7 @@ fn parse(file: std.fs.File) !void {
     while (size != 0) {
         size = try reader.read(&buffer);
         if (size > 0) {
-            for (buffer) |v| {
+            for (buffer[0..size]) |v| {
                 // We interpret brainfuck as a sequence of commands.
                 switch (v) {
                     '>' => increasePointer(),
