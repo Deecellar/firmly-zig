@@ -4,3 +4,9 @@ This is a library that manually wraps libfirm, a library for codegen made in C, 
 - codegen - A utility for common things to do and helpers for boilerplate
 
 This lib does not build or link libfirm (yet) since I want to port all the scripts to zig =)
+
+
+TODO:
+
+CODEGEN - All
+Wrapper - Make sure variadic functions are called correctly
