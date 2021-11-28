@@ -25,6 +25,7 @@ pub fn build(b: *std.build.Builder) void {
         examples.linkLibrary(lib);
         examples_codegen.install();
         b.installBinFile("example/test.bf", "test.bf");
+        b.installBinFile("example/bf_runtime.zig", "bf_runtime.zig");
     }
 
     var main_tests = b.addTest("src/main.zig");
