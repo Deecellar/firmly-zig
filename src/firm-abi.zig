@@ -830,6 +830,48 @@ pub extern var op_Tuple: ?*ir_op;
 pub extern var op_Unknown: ?*ir_op;
 pub extern var current_ir_graph: ?*ir_graph;
 
+pub const IrMode = enum {
+    M,
+    Is,
+    Iu,
+    F,
+    D,
+    P,
+    Hs,
+    Hu,
+    Ls,
+    Lu,
+    Bs,
+    Bu,
+    T,
+    BB,
+    X,
+    ANY,
+    BAD,
+};
+pub fn getMode(mode: IrMode) ?*ir_mode {
+    switch(mode) {
+        .M => return mode_M,
+        .Is => return mode_Is,
+        .Iu => return mode_Iu,
+        .F => return mode_F,
+        .D => return mode_D,
+        .P => return mode_P,
+        .Hs => return mode_Hs,
+        .Hu => return mode_Hu,
+        .Ls => return mode_Ls,
+        .Lu => return mode_Lu,
+        .Bs => return mode_Bs,
+        .Bu => return mode_Bu,
+        .T => return mode_T,
+        .BB => return mode_BB,
+        .X => return mode_X,
+        .ANY => return mode_ANY,
+        .BAD => return mode_BAD,
+    }
+}
+
+
 pub const optimization_state_t = u32;
 pub const irg_callee_info_none: i32 = 0;
 pub const irg_callee_info_consistent: i32 = 1;

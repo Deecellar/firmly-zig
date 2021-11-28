@@ -15,7 +15,7 @@ fn initializeFirm() void {
 
 fn createGraph() ?*firm.ir_graph {
     var methodType : ?*firm.ir_type = firm.newTypeMethod(0, 1, false, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
-    var intType : ?*firm.ir_type= firm.newTypePrimitive(firm.mode_Is);
+    var intType : ?*firm.ir_type= firm.newTypePrimitive(firm.getMode(.Is));
     firm.setMethodResType(methodType, 0, intType);
 
     var id = firm.irPlatformMangleGlobal("bf_main");
@@ -29,7 +29,7 @@ fn createGraph() ?*firm.ir_graph {
 }
 
 fn createField() ?*firm.ir_entity {
-    var byteType = firm.newTypePrimitive(firm.mode_Bu);
+    var byteType = firm.newTypePrimitive(firm.getMode(.Bu));
 
     var arrayType = firm.newTypeArray(byteType, dataSize);
 
@@ -45,7 +45,7 @@ fn createField() ?*firm.ir_entity {
 }
 
 fn createPutCharEntity() ?*firm.ir_entity {
-    var typeInt = firm.newTypePrimitive(firm.mode_Is);
+    var typeInt = firm.newTypePrimitive(firm.getMode(.Is));
 
     var methodType = firm.newTypeMethod(1, 1, false, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
 
@@ -61,7 +61,7 @@ fn createPutCharEntity() ?*firm.ir_entity {
 }
 
 fn createGetCharEntity() ?*firm.ir_entity {
-    var typeInt = firm.newTypePrimitive(firm.mode_Is);
+    var typeInt = firm.newTypePrimitive(firm.getMode(.Is));
 
     var methodType = firm.newTypeMethod(0, 1, false, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
 
@@ -76,9 +76,9 @@ fn createGetCharEntity() ?*firm.ir_entity {
 }
 
 fn increasePointer() void {
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
 
-    var offsetMode = firm.getReferenceOffsetMode(firm.mode_P);
+    var offsetMode = firm.getReferenceOffsetMode(firm.getMode(.P));
     var tarval = firm.newTarvalFromLong(1, offsetMode);
     var one = firm.newConst(tarval);
 
@@ -88,9 +88,9 @@ fn increasePointer() void {
 }
 
 fn decreasePointer() void {
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
 
-    var offsetMode = firm.getReferenceOffsetMode(firm.mode_P);
+    var offsetMode = firm.getReferenceOffsetMode(firm.getMode(.P));
     var tarval = firm.newTarvalFromLong(1, offsetMode);
     var one = firm.newConst(tarval);
 
@@ -99,41 +99,41 @@ fn decreasePointer() void {
 }
 
 fn incrementByte() void {
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
 
     var mem = firm.getStore();
-    var load = firm.newLoad(mem, pointerValue, firm.mode_Bu, typeBu, firm.ir_cons_flags.cons_none);
+    var load = firm.newLoad(mem, pointerValue, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
 
-    var loadResult = firm.newProj(load, firm.mode_Bu, @enumToInt(firm.projection_input_Load.res));
-    var loadMem = firm.newProj(load, firm.mode_M, @enumToInt(firm.projection_input_Load.M));
+    var loadResult = firm.newProj(load, firm.getMode(.Bu), @enumToInt(firm.projection_input_Load.res));
+    var loadMem = firm.newProj(load, firm.getMode(.M), @enumToInt(firm.projection_input_Load.M));
 
-    var tarval = firm.newTarvalFromLong(1, firm.mode_Bu);
+    var tarval = firm.newTarvalFromLong(1, firm.getMode(.Bu));
     var one = firm.newConst(tarval);
 
     var add = firm.newAdd(loadResult, one);
 
     var store = firm.newStore(loadMem, pointerValue, add, typeBu, firm.ir_cons_flags.cons_none);
-    var storeMem = firm.newProj(store, firm.mode_M, @enumToInt(firm.projection_input_Store.M));
+    var storeMem = firm.newProj(store, firm.getMode(.M), @enumToInt(firm.projection_input_Store.M));
 
     firm.setStore(storeMem);
 }
 
 fn decrementByte() void {
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
 
     var mem = firm.getStore();
-    var load = firm.newLoad(mem, pointerValue, firm.mode_Bu, typeBu, firm.ir_cons_flags.cons_none);
+    var load = firm.newLoad(mem, pointerValue, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
 
-    var loadResult = firm.newProj(load, firm.mode_Bu, @enumToInt(firm.projection_input_Load.res));
-    var loadMem = firm.newProj(load, firm.mode_M, @enumToInt(firm.projection_input_Load.M));
+    var loadResult = firm.newProj(load, firm.getMode(.Bu), @enumToInt(firm.projection_input_Load.res));
+    var loadMem = firm.newProj(load, firm.getMode(.M), @enumToInt(firm.projection_input_Load.M));
 
-    var tarval = firm.newTarvalFromLong(1, firm.mode_Bu);
+    var tarval = firm.newTarvalFromLong(1, firm.getMode(.Bu));
     var one = firm.newConst(tarval);
 
     var sub = firm.newSub(loadResult, one);
 
     var store = firm.newStore(loadMem, pointerValue, sub, typeBu, firm.ir_cons_flags.cons_none);
-    var storeMem = firm.newProj(store, firm.mode_M, @enumToInt(firm.projection_input_Store.M));
+    var storeMem = firm.newProj(store, firm.getMode(.M), @enumToInt(firm.projection_input_Store.M));
 
     firm.setStore(storeMem);
 }
@@ -144,18 +144,18 @@ fn outputByte() void {
         putchar = firm.newAddress(putcharEntity);
     }
 
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
     var mem = firm.getStore();
 
-    var load = firm.newLoad(mem, pointerValue, firm.mode_Bu, typeBu, firm.ir_cons_flags.cons_none);
-    var loadResult = firm.newProj(load, firm.mode_Bu, @enumToInt(firm.projection_input_Load.res));
+    var load = firm.newLoad(mem, pointerValue, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
+    var loadResult = firm.newProj(load, firm.getMode(.Bu), @enumToInt(firm.projection_input_Load.res));
 
-    var convert = firm.newConv(loadResult, firm.mode_Is);
+    var convert = firm.newConv(loadResult, firm.getMode(.Is));
     var in: [1]?*firm.ir_node = .{convert};
     var cType = firm.getEntityType(putcharEntity);
     var call = firm.newCall(mem, putchar, 1, &in, cType);
 
-    var callMem = firm.newProj(call, firm.mode_M, @enumToInt(firm.projection_input_Call.M));
+    var callMem = firm.newProj(call, firm.getMode(.M), @enumToInt(firm.projection_input_Call.M));
 
     firm.setStore(callMem);
 }
@@ -171,23 +171,23 @@ fn inputByte() void {
     var ctype = firm.getEntityType(getcharEntity);
     var call = firm.newCall(mem, getchar, 0, null, ctype);
 
-    var callMem = firm.newProj(call, firm.mode_M, @enumToInt(firm.projection_input_Call.M));
+    var callMem = firm.newProj(call, firm.getMode(.M), @enumToInt(firm.projection_input_Call.M));
 
-    var callResults = firm.newProj(call, firm.mode_T, @enumToInt(firm.projection_input_Call.T_result));
-    var callResult = firm.newProj(callResults, firm.mode_Is, 0);
+    var callResults = firm.newProj(call, firm.getMode(.T), @enumToInt(firm.projection_input_Call.T_result));
+    var callResult = firm.newProj(callResults, firm.getMode(.Is), 0);
 
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
-    var convert = firm.newConv(callResult, firm.mode_Is);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
+    var convert = firm.newConv(callResult, firm.getMode(.Is));
 
     var store = firm.newStore(callMem, pointerValue, convert, typeBu, firm.ir_cons_flags.cons_none);
-    var storeMem = firm.newProj(store, firm.mode_M, @enumToInt(firm.projection_input_Store.M));
+    var storeMem = firm.newProj(store, firm.getMode(.M), @enumToInt(firm.projection_input_Store.M));
 
     firm.setStore(storeMem);
 }
 
 fn createReturn() void {
     var mem = firm.getStore();
-    var zero = firm.newConst(firm.newTarvalFromLong(0, firm.mode_Is));
+    var zero = firm.newConst(firm.newTarvalFromLong(0, firm.getMode(.Is)));
     var returnNode = firm.newReturn(mem, 1, &zero);
 
     var endBlock = firm.getIrgEndBlock(firm.current_ir_graph);
@@ -205,20 +205,20 @@ fn parseLoop() void {
     firm.addImmblockPred(loopHeaderBlock, jmp);
     firm.setCurBlock(loopHeaderBlock);
 
-    var pointerValue = firm.getValue(variablePointer, firm.mode_P);
+    var pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
     var mem = firm.getStore();
-    var load = firm.newLoad(mem, pointerValue, firm.mode_Bu, typeBu, firm.ir_cons_flags.cons_none);
-    var loadResult = firm.newProj(load, firm.mode_Bu, @enumToInt(firm.projection_input_Load.res));
-    var loadMem = firm.newProj(load, firm.mode_M, @enumToInt(firm.projection_input_Load.M));
+    var load = firm.newLoad(mem, pointerValue, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
+    var loadResult = firm.newProj(load, firm.getMode(.Bu), @enumToInt(firm.projection_input_Load.res));
+    var loadMem = firm.newProj(load, firm.getMode(.M), @enumToInt(firm.projection_input_Load.M));
 
     firm.setStore(loadMem);
 
-    var zero = firm.newConst(firm.newTarvalFromLong(0, firm.mode_Bu));
+    var zero = firm.newConst(firm.newTarvalFromLong(0, firm.getMode(.Bu)));
 
     var equal = firm.newCmp(loadResult, zero, firm.ir_relation.equal);
     var cond = firm.newCond(equal);
-    var trueProj = firm.newProj(cond, firm.mode_X, @enumToInt(firm.projection_input_Cond.True));
-    var falseProj = firm.newProj(cond, firm.mode_X, @enumToInt(firm.projection_input_Cond.False));
+    var trueProj = firm.newProj(cond, firm.getMode(.X), @enumToInt(firm.projection_input_Cond.True));
+    var falseProj = firm.newProj(cond, firm.getMode(.X), @enumToInt(firm.projection_input_Cond.False));
 
     var loopBodyBlock = firm.newImmblock();
     firm.addImmblockPred(loopBodyBlock, falseProj);
@@ -281,7 +281,7 @@ pub fn main() !void {
     var graph = createGraph();
     firm.setCurrentIrGraph(graph);
 
-    typeBu = firm.getTypeForMode(firm.mode_Bu);
+    typeBu = firm.getTypeForMode(firm.getMode(.Bu));
 
     var field = createField();
     var fieldStart = firm.newAddress(field);
