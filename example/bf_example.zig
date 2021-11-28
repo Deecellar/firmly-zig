@@ -14,7 +14,7 @@ fn initializeFirm() void {
 }
 
 fn createGraph() ?*firm.ir_graph {
-    var methodType : ?*firm.ir_type = firm.newTypeMethod(0, 1, 0, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
+    var methodType : ?*firm.ir_type = firm.newTypeMethod(0, 1, false, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
     var intType : ?*firm.ir_type= firm.newTypePrimitive(firm.mode_Is);
     firm.setMethodResType(methodType, 0, intType);
 
@@ -47,7 +47,7 @@ fn createField() ?*firm.ir_entity {
 fn createPutCharEntity() ?*firm.ir_entity {
     var typeInt = firm.newTypePrimitive(firm.mode_Is);
 
-    var methodType = firm.newTypeMethod(1, 1, 0, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
+    var methodType = firm.newTypeMethod(1, 1, false, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
 
     firm.setMethodResType(methodType, 0, typeInt);
     firm.setMethodParamType(methodType, 0, typeInt);
@@ -63,7 +63,7 @@ fn createPutCharEntity() ?*firm.ir_entity {
 fn createGetCharEntity() ?*firm.ir_entity {
     var typeInt = firm.newTypePrimitive(firm.mode_Is);
 
-    var methodType = firm.newTypeMethod(0, 1, 0, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
+    var methodType = firm.newTypeMethod(0, 1, false, .{.calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set}, firm.mtp_additional_properties.no_property);
 
     firm.setMethodResType(methodType, 0, typeInt);
 
