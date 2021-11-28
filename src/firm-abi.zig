@@ -2495,22 +2495,22 @@ pub fn cloneEntity(old : ?*const ir_entity, name : [*]const u8, owner : ?*ir_typ
 pub fn freeEntity(ent : ?*ir_entity) void {
     return  low_level.free_entity(ent) ;
 }
-pub fn getEntityName(ent : ?*const ir_entity) u8 {
+pub fn getEntityName(ent : ?*const ir_entity) [*]const u8 {
     return  low_level.get_entity_name(ent) ;
 }
-pub fn getEntityIdent(ent : ?*const ir_entity) u8 {
+pub fn getEntityIdent(ent : ?*const ir_entity) [*]const u8 {
     return  low_level.get_entity_ident(ent) ;
 }
 pub fn setEntityIdent(ent : ?*ir_entity, id : [*]const u8) void {
     return  low_level.set_entity_ident(ent, id) ;
 }
-pub fn getEntityLdIdent(ent : ?*const ir_entity) u8 {
+pub fn getEntityLdIdent(ent : ?*const ir_entity) [*]const u8 {
     return  low_level.get_entity_ld_ident(ent) ;
 }
 pub fn setEntityLdIdent(ent : ?*ir_entity, ld_ident : [*]const u8) void {
     return  low_level.set_entity_ld_ident(ent, ld_ident) ;
 }
-pub fn getEntityLdName(ent : ?*const ir_entity) u8 {
+pub fn getEntityLdName(ent : ?*const ir_entity) [*]const u8 {
     return  low_level.get_entity_ld_name(ent) ;
 }
 pub fn entityHasLdIdent(entity : ?*const ir_entity) i32 {
@@ -2546,7 +2546,7 @@ pub fn getEntityVolatility(ent : ?*const ir_entity) ir_volatility {
 pub fn setEntityVolatility(ent : ?*ir_entity, vol : u32) void {
     return  low_level.set_entity_volatility(ent, vol) ;
 }
-pub fn getVolatilityName(@"var" : u32) u8 {
+pub fn getVolatilityName(@"var" : u32) [*]const u8 {
     return  low_level.get_volatility_name(@"var") ;
 }
 pub fn getEntityAlignment(entity : ?*const ir_entity) u32 {
@@ -2561,7 +2561,7 @@ pub fn getEntityAligned(ent : ?*const ir_entity) ir_align {
 pub fn setEntityAligned(ent : ?*ir_entity, a : u32) void {
     return  low_level.set_entity_aligned(ent, a) ;
 }
-pub fn getAlignName(a : u32) u8 {
+pub fn getAlignName(a : u32) [*]const u8 {
     return  low_level.get_align_name(a) ;
 }
 pub fn getEntityOffset(entity : ?*const ir_entity) i32 {
@@ -2630,7 +2630,7 @@ pub fn setEntityParameterNumber(entity : ?*ir_entity, n : usize) void {
 pub fn getInitializerKind(initializer : ?*const ir_initializer_t) ir_initializer_kind_t {
     return @intToEnum(ir_initializer_kind_t, low_level.get_initializer_kind(initializer) );
 }
-pub fn getInitializerKindName(ini : u32) u8 {
+pub fn getInitializerKindName(ini : u32) [*]const u8 {
     return  low_level.get_initializer_kind_name(ini) ;
 }
 pub fn getInitializerNull() ?*ir_initializer_t {
@@ -2744,7 +2744,7 @@ pub fn getUnknownEntity() ?*ir_entity {
 pub fn isUnknownEntity(entity : ?*const ir_entity) i32 {
     return  low_level.is_unknown_entity(entity) ;
 }
-pub fn getTypeOpcodeName(opcode : u32) u8 {
+pub fn getTypeOpcodeName(opcode : u32) [*]const u8 {
     return  low_level.get_type_opcode_name(opcode) ;
 }
 pub fn isSubclassOf(low : ?*const ir_type, high : ?*const ir_type) i32 {
@@ -2816,7 +2816,7 @@ pub fn getTypeOpcode(@"type" : ?*const ir_type) tp_opcode {
 pub fn irPrintType(buffer : [*]u8, buffer_size : usize, tp : ?*const ir_type) void {
     return  low_level.ir_print_type(buffer, buffer_size, tp) ;
 }
-pub fn getTypeStateName(s : u32) u8 {
+pub fn getTypeStateName(s : u32) [*]const u8 {
     return  low_level.get_type_state_name(s) ;
 }
 pub fn getTypeState(tp : ?*const ir_type) ir_type_state {
@@ -3042,10 +3042,10 @@ pub fn isUnknownType(@"type" : ?*const ir_type) i32 {
 pub fn isAtomicType(tp : ?*const ir_type) i32 {
     return  low_level.is_atomic_type(tp) ;
 }
-pub fn getCompoundIdent(tp : ?*const ir_type) u8 {
+pub fn getCompoundIdent(tp : ?*const ir_type) [*]const u8 {
     return  low_level.get_compound_ident(tp) ;
 }
-pub fn getCompoundName(tp : ?*const ir_type) u8 {
+pub fn getCompoundName(tp : ?*const ir_type) [*]const u8 {
     return  low_level.get_compound_name(tp) ;
 }
 pub fn getCompoundNMembers(tp : ?*const ir_type) usize {
@@ -3120,10 +3120,10 @@ pub fn newFloatMode(name : [*]const u8, arithmetic : u32, exponent_size : u32, m
 pub fn newNonArithmeticMode(name : [*]const u8, bit_size : u32) ?*ir_mode {
     return  low_level.new_non_arithmetic_mode(name, bit_size) ;
 }
-pub fn getModeIdent(mode : ?*const ir_mode) u8 {
+pub fn getModeIdent(mode : ?*const ir_mode) [*]const u8 {
     return  low_level.get_mode_ident(mode) ;
 }
-pub fn getModeName(mode : ?*const ir_mode) u8 {
+pub fn getModeName(mode : ?*const ir_mode) [*]const u8 {
     return  low_level.get_mode_name(mode) ;
 }
 pub fn getModeSizeBits(mode : ?*const ir_mode) u32 {
@@ -3528,7 +3528,7 @@ pub fn cgSetCallCalleeArr(node : ?*ir_node, n : usize, arr : [*]?*ir_entity) voi
 pub fn cgRemoveCallCalleeArr(node : ?*ir_node) void {
     return  low_level.cg_remove_call_callee_arr(node) ;
 }
-pub fn dbgAction2Str(a : u32) u8 {
+pub fn dbgAction2Str(a : u32) [*]const u8 {
     return  low_level.dbg_action_2_str(a) ;
 }
 pub fn dbgInit(dbg_info_merge_pair : ?merge_pair_func, dbg_info_merge_sets : ?merge_sets_func) void {
@@ -3570,10 +3570,10 @@ pub fn irGetVersionMinor() u32 {
 pub fn irGetVersionMicro() u32 {
     return  low_level.ir_get_version_micro() ;
 }
-pub fn irGetVersionRevision() u8 {
+pub fn irGetVersionRevision() [*]const u8 {
     return  low_level.ir_get_version_revision() ;
 }
-pub fn irGetVersionBuild() u8 {
+pub fn irGetVersionBuild() [*]const u8 {
     return  low_level.ir_get_version_build() ;
 }
 pub fn getKind(firm_thing : ?*const c_void) firm_kind {
@@ -3594,31 +3594,31 @@ pub fn heightsNew(irg : ?*ir_graph) ?*ir_heights_t {
 pub fn heightsFree(h : ?*ir_heights_t) void {
     return  low_level.heights_free(h) ;
 }
-pub fn newIdFromStr(str : [*]const u8) u8 {
+pub fn newIdFromStr(str : [*]const u8) [*]const u8 {
     return  low_level.new_id_from_str(str) ;
 }
-pub fn newIdFromChars(str : [*]const u8, len : usize) u8 {
+pub fn newIdFromChars(str : [*]const u8, len : usize) [*]const u8 {
     return  low_level.new_id_from_chars(str, len) ;
 }
-pub fn newIdFmt(fmt : [*]const u8, variadic : anytype) u8 {
+pub fn newIdFmt(fmt : [*]const u8, variadic : anytype) [*]const u8 {
     return  low_level.new_id_fmt(fmt, variadic) ;
 }
-pub fn getIdStr(id : [*]const u8) u8 {
+pub fn getIdStr(id : [*]const u8) [*]const u8 {
     return  low_level.get_id_str(id) ;
 }
-pub fn idUnique(tag : [*]const u8) u8 {
+pub fn idUnique(tag : [*]const u8) [*]const u8 {
     return  low_level.id_unique(tag) ;
 }
 pub fn gcIrgs(n_keep : usize, keep_arr : [*]?*ir_entity) void {
     return  low_level.gc_irgs(n_keep, keep_arr) ;
 }
-pub fn getOpName(op : ?*const ir_op) u8 {
+pub fn getOpName(op : ?*const ir_op) [*]const u8 {
     return  low_level.get_op_name(op) ;
 }
 pub fn getOpCode(op : ?*const ir_op) u32 {
     return  low_level.get_op_code(op) ;
 }
-pub fn getOpPinStateName(s : u32) u8 {
+pub fn getOpPinStateName(s : u32) [*]const u8 {
     return  low_level.get_op_pin_state_name(s) ;
 }
 pub fn getOpPinned(op : ?*const ir_op) op_pin_state {
@@ -3744,13 +3744,13 @@ pub fn getAsmConstraints(node : ?*const ir_node) [*]ir_asm_constraint {
 pub fn setAsmConstraints(node : ?*ir_node, constraints : [*]ir_asm_constraint) void {
     return  low_level.set_ASM_constraints(node, constraints) ;
 }
-pub fn getAsmClobbers(node : ?*const ir_node) u8 {
+pub fn getAsmClobbers(node : ?*const ir_node) [*]const u8 {
     return  low_level.get_ASM_clobbers(node) ;
 }
 pub fn setAsmClobbers(node : ?*ir_node, clobbers : [*][*]const u8) void {
     return  low_level.set_ASM_clobbers(node, clobbers) ;
 }
-pub fn getAsmText(node : ?*const ir_node) u8 {
+pub fn getAsmText(node : ?*const ir_node) [*]const u8 {
     return  low_level.get_ASM_text(node) ;
 }
 pub fn setAsmText(node : ?*ir_node, text : [*]const u8) void {
@@ -5481,10 +5481,10 @@ pub fn getIrnOp(node : ?*const ir_node) ?*ir_op {
 pub fn getIrnOpcode(node : ?*const ir_node) u32 {
     return  low_level.get_irn_opcode(node) ;
 }
-pub fn getIrnOpname(node : ?*const ir_node) u8 {
+pub fn getIrnOpname(node : ?*const ir_node) [*]const u8 {
     return  low_level.get_irn_opname(node) ;
 }
-pub fn getIrnOpident(node : ?*const ir_node) u8 {
+pub fn getIrnOpident(node : ?*const ir_node) [*]const u8 {
     return  low_level.get_irn_opident(node) ;
 }
 pub fn getIrnVisited(node : ?*const ir_node) ir_visited_t {
@@ -5604,7 +5604,7 @@ pub fn isConstAllOne(node : ?*const ir_node) i32 {
 pub fn getCallCallee(call : ?*const ir_node) ?*ir_entity {
     return  low_level.get_Call_callee(call) ;
 }
-pub fn getBuiltinKindName(kind : u32) u8 {
+pub fn getBuiltinKindName(kind : u32) [*]const u8 {
     return  low_level.get_builtin_kind_name(kind) ;
 }
 pub fn getBinopLeft(node : ?*const ir_node) ?*ir_node {
@@ -5631,7 +5631,7 @@ pub fn irSetThrowsException(node : ?*ir_node, throws_exception : i32) void {
 pub fn irThrowsException(node : ?*const ir_node) i32 {
     return  low_level.ir_throws_exception(node) ;
 }
-pub fn getRelationString(relation : ir_relation) u8 {
+pub fn getRelationString(relation : ir_relation) [*]const u8 {
     return  low_level.get_relation_string(relation) ;
 }
 pub fn getNegatedRelation(relation : ir_relation) ir_relation {
@@ -5718,7 +5718,7 @@ pub fn isIrnKeep(node : ?*const ir_node) i32 {
 pub fn isIrnStartBlockPlaced(node : ?*const ir_node) i32 {
     return  low_level.is_irn_start_block_placed(node) ;
 }
-pub fn getCondJmpPredicateName(pred : u32) u8 {
+pub fn getCondJmpPredicateName(pred : u32) [*]const u8 {
     return  low_level.get_cond_jmp_predicate_name(pred) ;
 }
 pub fn getIrnGenericAttr(node : ?*ir_node) ?*c_void {
@@ -5736,7 +5736,7 @@ pub fn setIrnDbgInfo(n : ?*ir_node, db : ?*dbg_info) void {
 pub fn getIrnDbgInfo(n : ?*const ir_node) ?*dbg_info {
     return  low_level.get_irn_dbg_info(n) ;
 }
-pub fn gdbNodeHelper(firm_object : ?*const c_void) u8 {
+pub fn gdbNodeHelper(firm_object : ?*const c_void) [*]const u8 {
     return  low_level.gdb_node_helper(firm_object) ;
 }
 pub fn irNewSwitchTable(irg : ?*ir_graph, n_entries : usize) ?*ir_switch_table {
@@ -5961,7 +5961,7 @@ pub fn irSetDumpPath(path : [*]const u8) void {
 pub fn irSetDumpFilter(name : [*]const u8) void {
     return  low_level.ir_set_dump_filter(name) ;
 }
-pub fn irGetDumpFilter() u8 {
+pub fn irGetDumpFilter() [*]const u8 {
     return  low_level.ir_get_dump_filter() ;
 }
 pub fn dumpIrGraphFile(out : *std.c.FILE, graph : ?*ir_graph) void {
@@ -6516,7 +6516,7 @@ pub fn freeLoopInformation(irg : ?*ir_graph) void {
 pub fn isLoopInvariant(n : ?*const ir_node, block : ?*const ir_node) i32 {
     return  low_level.is_loop_invariant(n, block) ;
 }
-pub fn getIrAliasRelationName(rel : u32) u8 {
+pub fn getIrAliasRelationName(rel : u32) [*]const u8 {
     return  low_level.get_ir_alias_relation_name(rel) ;
 }
 pub fn getAliasRelation(addr1 : ?*const ir_node, type1 : ?*const ir_type, size1 : u32, addr2 : ?*const ir_node, type2 : ?*const ir_type, size2 : u32) ir_alias_relation {
@@ -6630,10 +6630,10 @@ pub fn setIrpProgName(name : [*]const u8) void {
 pub fn irpProgNameIsSet() i32 {
     return  low_level.irp_prog_name_is_set() ;
 }
-pub fn getIrpIdent() u8 {
+pub fn getIrpIdent() [*]const u8 {
     return  low_level.get_irp_ident() ;
 }
-pub fn getIrpName() u8 {
+pub fn getIrpName() [*]const u8 {
     return  low_level.get_irp_name() ;
 }
 pub fn getIrpMainIrg() ?*ir_graph {
@@ -6696,7 +6696,7 @@ pub fn addIrpAsm(asm_string : [*]const u8) void {
 pub fn getIrpNAsms() usize {
     return  low_level.get_irp_n_asms() ;
 }
-pub fn getIrpAsm(pos : usize) u8 {
+pub fn getIrpAsm(pos : usize) [*]const u8 {
     return  low_level.get_irp_asm(pos) ;
 }
 pub fn irnVerify(node : ?*const ir_node) i32 {
@@ -6828,7 +6828,7 @@ pub fn irTargetOption(option : [*]const u8) i32 {
 pub fn irTargetInit() void {
     return  low_level.ir_target_init() ;
 }
-pub fn irTargetExperimental() u8 {
+pub fn irTargetExperimental() [*]const u8 {
     return  low_level.ir_target_experimental() ;
 }
 pub fn irTargetBigEndian() i32 {
@@ -6861,7 +6861,7 @@ pub fn irPlatformPicIsDefault() i32 {
 pub fn irPlatformSupportsThreadLocalStorage() i32 {
     return  low_level.ir_platform_supports_thread_local_storage() ;
 }
-pub fn irPlatformDefineValue(define : ?*const ir_platform_define_t) u8 {
+pub fn irPlatformDefineValue(define : ?*const ir_platform_define_t) [*]const u8 {
     return  low_level.ir_platform_define_value(define) ;
 }
 pub fn irPlatformWcharType() ir_platform_type_t {
@@ -6885,10 +6885,10 @@ pub fn irPlatformTypeMode(@"type" : u32, is_signed : i32) ?*ir_mode {
 pub fn irPlatformVaListType() ?*ir_type {
     return  low_level.ir_platform_va_list_type() ;
 }
-pub fn irPlatformUserLabelPrefix() u8 {
+pub fn irPlatformUserLabelPrefix() [*]const u8 {
     return  low_level.ir_platform_user_label_prefix() ;
 }
-pub fn irPlatformDefaultExeName() u8 {
+pub fn irPlatformDefaultExeName() [*]const u8 {
     return  low_level.ir_platform_default_exe_name() ;
 }
 pub fn irPlatformMangleGlobal(name : [*]const u8) [*]const u8 {
@@ -6900,7 +6900,7 @@ pub fn irPlatformDefineFirst() ir_platform_define_t {
 pub fn irPlatformDefineNext(define : ?*const ir_platform_define_t) ir_platform_define_t {
     return  low_level.ir_platform_define_next(define) ;
 }
-pub fn irPlatformDefineName(define : ?*const ir_platform_define_t) u8 {
+pub fn irPlatformDefineName(define : ?*const ir_platform_define_t) [*]const u8 {
     return  low_level.ir_platform_define_name(define) ;
 }
 pub fn irParseMachineTriple(triple_string : [*]const u8) ?*ir_machine_triple_t {
@@ -6909,13 +6909,13 @@ pub fn irParseMachineTriple(triple_string : [*]const u8) ?*ir_machine_triple_t {
 pub fn irGetHostMachineTriple() ?*ir_machine_triple_t {
     return  low_level.ir_get_host_machine_triple() ;
 }
-pub fn irTripleGetCpuType(triple : ?*const ir_machine_triple_t) u8 {
+pub fn irTripleGetCpuType(triple : ?*const ir_machine_triple_t) [*]const u8 {
     return  low_level.ir_triple_get_cpu_type(triple) ;
 }
-pub fn irTripleGetManufacturer(triple : ?*const ir_machine_triple_t) u8 {
+pub fn irTripleGetManufacturer(triple : ?*const ir_machine_triple_t) [*]const u8 {
     return  low_level.ir_triple_get_manufacturer(triple) ;
 }
-pub fn irTripleGetOperatingSystem(triple : ?*const ir_machine_triple_t) u8 {
+pub fn irTripleGetOperatingSystem(triple : ?*const ir_machine_triple_t) [*]const u8 {
     return  low_level.ir_triple_get_operating_system(triple) ;
 }
 pub fn irTripleSetCpuType(triple : ?*ir_machine_triple_t, cpu_type : [*]const u8) void {
@@ -7110,7 +7110,7 @@ pub fn tarvalShrs(a : ?*const ir_tarval, b : ?*const ir_tarval) ?*ir_tarval {
 pub fn tarvalShrsUnsigned(a : ?*const ir_tarval, b : u32) ?*ir_tarval {
     return  low_level.tarval_shrs_unsigned(a, b) ;
 }
-pub fn getTarvalSubBits(tv : ?*const ir_tarval, byte_ofs : u32) u8 {
+pub fn getTarvalSubBits(tv : ?*const ir_tarval, byte_ofs : u32) [*]const u8 {
     return  low_level.get_tarval_sub_bits(tv, byte_ofs) ;
 }
 pub fn getTarvalPopcount(tv : ?*const ir_tarval) i32 {
