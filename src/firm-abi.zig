@@ -850,7 +850,7 @@ pub const IrMode = enum {
     BAD,
 };
 pub fn getMode(mode: IrMode) ?*ir_mode {
-    switch(mode) {
+    switch (mode) {
         .M => return mode_M,
         .Is => return mode_Is,
         .Iu => return mode_Iu,
@@ -870,7 +870,6 @@ pub fn getMode(mode: IrMode) ?*ir_mode {
         .BAD => return mode_BAD,
     }
 }
-
 
 pub const optimization_state_t = u32;
 pub const irg_callee_info_none: i32 = 0;
@@ -920,16 +919,16 @@ pub const ir_graph_dump_func = ?fn (*std.c.FILE, ?*ir_graph) callconv(.C) void;
 pub const dump_node_vcgattr_func = ?fn (*std.c.FILE, ?*const ir_node, ?*const ir_node) callconv(.C) i32;
 pub const dump_edge_vcgattr_func = ?fn (*std.c.FILE, ?*const ir_node, i32) callconv(.C) i32;
 pub const dump_node_edge_func = ?fn (*std.c.FILE, ?*const ir_node) callconv(.C) void;
-pub const irg_walk_func = fn (?*ir_node, ?*c_void) callconv(.C) void;
+pub const irg_walk_func = fn (?*ir_node, ?*anyopaque) callconv(.C) void;
 pub const uninitialized_local_variable_func_t = fn (?*ir_graph, ?*ir_mode, i32) callconv(.C) ?*ir_node;
-pub const compare_types_func_t = fn (?*const c_void, ?*const c_void) callconv(.C) i32;
-pub const type_walk_func = fn (?*ir_type, ?*ir_entity, ?*c_void) callconv(.C) void;
-pub const class_walk_func = fn (?*ir_type, ?*c_void) callconv(.C) void;
-pub const entity_walk_func = fn (?*ir_entity, ?*c_void) callconv(.C) void;
-pub const callgraph_walk_func = fn (?*ir_graph, ?*c_void) callconv(.C) void;
+pub const compare_types_func_t = fn (?*const anyopaque, ?*const anyopaque) callconv(.C) i32;
+pub const type_walk_func = fn (?*ir_type, ?*ir_entity, ?*anyopaque) callconv(.C) void;
+pub const class_walk_func = fn (?*ir_type, ?*anyopaque) callconv(.C) void;
+pub const entity_walk_func = fn (?*ir_entity, ?*anyopaque) callconv(.C) void;
+pub const callgraph_walk_func = fn (?*ir_graph, ?*anyopaque) callconv(.C) void;
 pub const merge_pair_func = fn (?*ir_node, ?*ir_node, dbg_action) callconv(.C) void;
 pub const merge_sets_func = fn ([*]const ?*ir_node, i32, [*]const ?*ir_node, i32, dbg_action) callconv(.C) void;
-pub const dump_node_info_cb_t = fn (?*c_void, *std.c.FILE, ?*const ir_node) callconv(.C) void;
+pub const dump_node_info_cb_t = fn (?*anyopaque, *std.c.FILE, ?*const ir_node) callconv(.C) void;
 pub const lower_mux_callback = fn (?*ir_node) callconv(.C) i32;
 pub const i_mapper_func = fn (?*ir_node) callconv(.C) i32;
 
@@ -976,8 +975,8 @@ pub const low_level = struct {
     pub extern fn set_entity_bitfield_offset(entity: ?*ir_entity, offset: u32) void;
     pub extern fn set_entity_bitfield_size(entity: ?*ir_entity, size: u32) void;
     pub extern fn get_entity_bitfield_size(entity: ?*const ir_entity) u32;
-    pub extern fn get_entity_link(ent: ?*const ir_entity) ?*c_void;
-    pub extern fn set_entity_link(ent: ?*ir_entity, l: ?*c_void) void;
+    pub extern fn get_entity_link(ent: ?*const ir_entity) ?*anyopaque;
+    pub extern fn set_entity_link(ent: ?*ir_entity, l: ?*anyopaque) void;
     pub extern fn get_entity_irg(ent: ?*const ir_entity) ?*ir_graph;
     pub extern fn get_entity_linktime_irg(ent: ?*const ir_entity) ?*ir_graph;
     pub extern fn get_entity_vtable_number(ent: ?*const ir_entity) u32;
@@ -1066,8 +1065,8 @@ pub const low_level = struct {
     pub extern fn set_type_visited(tp: ?*ir_type, num: ir_visited_t) void;
     pub extern fn mark_type_visited(tp: ?*ir_type) void;
     pub extern fn type_visited(tp: ?*const ir_type) i32;
-    pub extern fn get_type_link(tp: ?*const ir_type) ?*c_void;
-    pub extern fn set_type_link(tp: ?*ir_type, l: ?*c_void) void;
+    pub extern fn get_type_link(tp: ?*const ir_type) ?*anyopaque;
+    pub extern fn set_type_link(tp: ?*ir_type, l: ?*anyopaque) void;
     pub extern fn inc_master_type_visited() void;
     pub extern fn set_master_type_visited(val: ir_visited_t) void;
     pub extern fn get_master_type_visited() ir_visited_t;
@@ -1140,12 +1139,12 @@ pub const low_level = struct {
     pub extern fn is_frame_type(tp: ?*const ir_type) i32;
     pub extern fn clone_frame_type(@"type": ?*ir_type) ?*ir_type;
     pub extern fn is_segment_type(tp: ?*const ir_type) i32;
-    pub extern fn type_walk(pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void;
-    pub extern fn type_walk_irg(irg: ?*ir_graph, pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void;
-    pub extern fn type_walk_super2sub(pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void;
-    pub extern fn type_walk_super(pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void;
-    pub extern fn class_walk_super2sub(pre: ?class_walk_func, post: ?class_walk_func, env: ?*c_void) void;
-    pub extern fn walk_types_entities(tp: ?*ir_type, doit: ?entity_walk_func, env: ?*c_void) void;
+    pub extern fn type_walk(pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void;
+    pub extern fn type_walk_irg(irg: ?*ir_graph, pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void;
+    pub extern fn type_walk_super2sub(pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void;
+    pub extern fn type_walk_super(pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void;
+    pub extern fn class_walk_super2sub(pre: ?class_walk_func, post: ?class_walk_func, env: ?*anyopaque) void;
+    pub extern fn walk_types_entities(tp: ?*ir_type, doit: ?entity_walk_func, env: ?*anyopaque) void;
     pub extern fn get_method_param_access(ent: ?*ir_entity, pos: usize) ptr_access_kind;
     pub extern fn analyze_irg_args(irg: ?*ir_graph) void;
     pub extern fn get_method_param_weight(ent: ?*ir_entity, pos: usize) u32;
@@ -1266,7 +1265,7 @@ pub const low_level = struct {
     pub extern fn get_irg_method_execution_frequency(irg: ?*const ir_graph) f64;
     pub extern fn compute_callgraph() void;
     pub extern fn free_callgraph() void;
-    pub extern fn callgraph_walk(pre: ?callgraph_walk_func, post: ?callgraph_walk_func, env: ?*c_void) void;
+    pub extern fn callgraph_walk(pre: ?callgraph_walk_func, post: ?callgraph_walk_func, env: ?*anyopaque) void;
     pub extern fn find_callgraph_recursions() void;
     pub extern fn analyse_loop_nesting_depth() void;
     pub extern fn get_irp_loop_nesting_depth_state() loop_nesting_depth_state;
@@ -1306,7 +1305,7 @@ pub const low_level = struct {
     pub extern fn ir_get_version_micro() u32;
     pub extern fn ir_get_version_revision() [*]const u8;
     pub extern fn ir_get_version_build() [*]const u8;
-    pub extern fn get_kind(firm_thing: ?*const c_void) firm_kind;
+    pub extern fn get_kind(firm_thing: ?*const anyopaque) firm_kind;
     pub extern fn get_irn_height(h: ?*const ir_heights_t, irn: ?*const ir_node) u32;
     pub extern fn heights_reachable_in_block(h: ?*ir_heights_t, src: ?*const ir_node, tgt: ?*const ir_node) i32;
     pub extern fn heights_recompute_block(h: ?*ir_heights_t, block: ?*ir_node) u32;
@@ -1948,8 +1947,8 @@ pub const low_level = struct {
     pub extern fn mark_irn_visited(node: ?*ir_node) void;
     pub extern fn irn_visited(node: ?*const ir_node) i32;
     pub extern fn irn_visited_else_mark(node: ?*ir_node) i32;
-    pub extern fn set_irn_link(node: ?*ir_node, link: ?*c_void) void;
-    pub extern fn get_irn_link(node: ?*const ir_node) ?*c_void;
+    pub extern fn set_irn_link(node: ?*ir_node, link: ?*anyopaque) void;
+    pub extern fn get_irn_link(node: ?*const ir_node) ?*anyopaque;
     pub extern fn get_irn_irg(node: ?*const ir_node) ?*ir_graph;
     pub extern fn get_irn_node_nr(node: ?*const ir_node) i64;
     pub extern fn get_irn_pinned(node: ?*const ir_node) i32;
@@ -2021,12 +2020,12 @@ pub const low_level = struct {
     pub extern fn is_irn_keep(node: ?*const ir_node) i32;
     pub extern fn is_irn_start_block_placed(node: ?*const ir_node) i32;
     pub extern fn get_cond_jmp_predicate_name(pred: cond_jmp_predicate) [*]const u8;
-    pub extern fn get_irn_generic_attr(node: ?*ir_node) ?*c_void;
-    pub extern fn get_irn_generic_attr_const(node: ?*const ir_node) ?*const c_void;
+    pub extern fn get_irn_generic_attr(node: ?*ir_node) ?*anyopaque;
+    pub extern fn get_irn_generic_attr_const(node: ?*const ir_node) ?*const anyopaque;
     pub extern fn get_irn_idx(node: ?*const ir_node) u32;
     pub extern fn set_irn_dbg_info(n: ?*ir_node, db: ?*dbg_info) void;
     pub extern fn get_irn_dbg_info(n: ?*const ir_node) ?*dbg_info;
-    pub extern fn gdb_node_helper(firm_object: ?*const c_void) [*]const u8;
+    pub extern fn gdb_node_helper(firm_object: ?*const anyopaque) [*]const u8;
     pub extern fn ir_new_switch_table(irg: ?*ir_graph, n_entries: usize) ?*ir_switch_table;
     pub extern fn ir_switch_table_get_n_entries(table: ?*const ir_switch_table) usize;
     pub extern fn ir_switch_table_set(table: ?*ir_switch_table, entry: usize, min: ?*ir_tarval, max: ?*ir_tarval, pn: u32) void;
@@ -2087,10 +2086,10 @@ pub const low_level = struct {
     pub extern fn get_Block_dominated_next(node: ?*const ir_node) ?*ir_node;
     pub extern fn get_Block_postdominated_next(node: ?*const ir_node) ?*ir_node;
     pub extern fn ir_deepest_common_dominator(block0: ?*ir_node, block1: ?*ir_node) ?*ir_node;
-    pub extern fn dom_tree_walk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn postdom_tree_walk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn dom_tree_walk_irg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn postdom_tree_walk_irg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
+    pub extern fn dom_tree_walk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn postdom_tree_walk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn dom_tree_walk_irg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn postdom_tree_walk_irg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
     pub extern fn compute_doms(irg: ?*ir_graph) void;
     pub extern fn compute_postdoms(irg: ?*ir_graph) void;
     pub extern fn ir_compute_dominance_frontiers(irg: ?*ir_graph) void;
@@ -2127,7 +2126,7 @@ pub const low_level = struct {
     pub extern fn get_dump_node_edge_hook() dump_node_edge_func;
     pub extern fn set_dump_block_edge_hook(func: dump_node_edge_func) void;
     pub extern fn get_dump_block_edge_hook() dump_node_edge_func;
-    pub extern fn dump_add_node_info_callback(cb: ?dump_node_info_cb_t, data: ?*c_void) ?*hook_entry_t;
+    pub extern fn dump_add_node_info_callback(cb: ?dump_node_info_cb_t, data: ?*anyopaque) ?*hook_entry_t;
     pub extern fn dump_remove_node_info_callback(handle: ?*hook_entry_t) void;
     pub extern fn dump_vcg_header(out: *std.c.FILE, name: [*]const u8, layout: [*]const u8, orientation: [*]const u8) void;
     pub extern fn dump_vcg_footer(out: *std.c.FILE) void;
@@ -2160,8 +2159,8 @@ pub const low_level = struct {
     pub extern fn edges_deactivate(irg: ?*ir_graph) void;
     pub extern fn assure_edges(irg: ?*ir_graph) void;
     pub extern fn assure_edges_kind(irg: ?*ir_graph, kind: ir_edge_kind_t) void;
-    pub extern fn irg_block_edges_walk(block: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_edges(start: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
+    pub extern fn irg_block_edges_walk(block: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_edges(start: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
     pub extern fn set_optimize(value: i32) void;
     pub extern fn get_optimize() i32;
     pub extern fn set_opt_constant_folding(value: i32) void;
@@ -2225,8 +2224,8 @@ pub const low_level = struct {
     pub extern fn get_irg_pinned(irg: ?*const ir_graph) op_pin_state;
     pub extern fn get_irg_callee_info_state(irg: ?*const ir_graph) irg_callee_info_state;
     pub extern fn set_irg_callee_info_state(irg: ?*ir_graph, s: irg_callee_info_state) void;
-    pub extern fn set_irg_link(irg: ?*ir_graph, thing: ?*c_void) void;
-    pub extern fn get_irg_link(irg: ?*const ir_graph) ?*c_void;
+    pub extern fn set_irg_link(irg: ?*ir_graph, thing: ?*anyopaque) void;
+    pub extern fn get_irg_link(irg: ?*const ir_graph) ?*anyopaque;
     pub extern fn inc_irg_visited(irg: ?*ir_graph) void;
     pub extern fn get_irg_visited(irg: ?*const ir_graph) ir_visited_t;
     pub extern fn set_irg_visited(irg: ?*ir_graph, i: ir_visited_t) void;
@@ -2247,23 +2246,23 @@ pub const low_level = struct {
     pub extern fn irg_has_properties(irg: ?*const ir_graph, props: ir_graph_properties_t) i32;
     pub extern fn assure_irg_properties(irg: ?*ir_graph, props: ir_graph_properties_t) void;
     pub extern fn confirm_irg_properties(irg: ?*ir_graph, props: ir_graph_properties_t) void;
-    pub extern fn set_irg_loc_description(irg: ?*ir_graph, n: i32, description: ?*c_void) void;
-    pub extern fn get_irg_loc_description(irg: ?*ir_graph, n: i32) ?*c_void;
+    pub extern fn set_irg_loc_description(irg: ?*ir_graph, n: i32, description: ?*anyopaque) void;
+    pub extern fn get_irg_loc_description(irg: ?*ir_graph, n: i32) ?*anyopaque;
     pub extern fn get_irg_last_idx(irg: ?*const ir_graph) u32;
-    pub extern fn irg_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_core(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_in_or_dep(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_in_or_dep_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_topological(irg: ?*ir_graph, walker: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn all_irg_walk(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_block_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_block_walk_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn walk_const_code(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_blkwise_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_blkwise_dom_top_down(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_anchors(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_walk_2(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
+    pub extern fn irg_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_core(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_in_or_dep(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_in_or_dep_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_topological(irg: ?*ir_graph, walker: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn all_irg_walk(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_block_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_block_walk_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn walk_const_code(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_blkwise_graph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_blkwise_dom_top_down(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_anchors(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_walk_2(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
     pub extern fn ir_export(filename: [*]const u8) i32;
     pub extern fn ir_export_file(output: *std.c.FILE) void;
     pub extern fn ir_import(filename: [*]const u8) i32;
@@ -2280,8 +2279,8 @@ pub const low_level = struct {
     pub extern fn get_loop_n_elements(loop: ?*const ir_loop) usize;
     pub extern fn get_loop_element(loop: ?*const ir_loop, pos: usize) loop_element;
     pub extern fn get_loop_loop_nr(loop: ?*const ir_loop) i64;
-    pub extern fn set_loop_link(loop: ?*ir_loop, link: ?*c_void) void;
-    pub extern fn get_loop_link(loop: ?*const ir_loop) ?*c_void;
+    pub extern fn set_loop_link(loop: ?*ir_loop, link: ?*anyopaque) void;
+    pub extern fn get_loop_link(loop: ?*const ir_loop) ?*anyopaque;
     pub extern fn construct_cf_backedges(irg: ?*ir_graph) void;
     pub extern fn assure_loopinfo(irg: ?*ir_graph) void;
     pub extern fn free_loop_information(irg: ?*ir_graph) void;
@@ -2310,8 +2309,8 @@ pub const low_level = struct {
     pub extern fn get_Block_cfg_out(node: ?*const ir_node, pos: u32) ?*ir_node;
     pub extern fn get_Block_cfg_out_ex(node: ?*const ir_node, pos: u32, in_pos: [*]i32) ?*ir_node;
     pub extern fn get_Block_cfg_out_ka(node: ?*const ir_node, pos: u32) ?*ir_node;
-    pub extern fn irg_out_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
-    pub extern fn irg_out_block_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void;
+    pub extern fn irg_out_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
+    pub extern fn irg_out_block_walk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void;
     pub extern fn compute_irg_outs(irg: ?*ir_graph) void;
     pub extern fn assure_irg_outs(irg: ?*ir_graph) void;
     pub extern fn free_irg_outs(irg: ?*ir_graph) void;
@@ -2628,10 +2627,10 @@ pub fn setEntityBitfieldSize(entity: ?*ir_entity, size: u32) void {
 pub fn getEntityBitfieldSize(entity: ?*const ir_entity) u32 {
     return low_level.get_entity_bitfield_size(entity);
 }
-pub fn getEntityLink(ent: ?*const ir_entity) ?*c_void {
+pub fn getEntityLink(ent: ?*const ir_entity) ?*anyopaque {
     return low_level.get_entity_link(ent);
 }
-pub fn setEntityLink(ent: ?*ir_entity, l: ?*c_void) void {
+pub fn setEntityLink(ent: ?*ir_entity, l: ?*anyopaque) void {
     return low_level.set_entity_link(ent, l);
 }
 pub fn getEntityIrg(ent: ?*const ir_entity) ?*ir_graph {
@@ -2898,10 +2897,10 @@ pub fn markTypeVisited(tp: ?*ir_type) void {
 pub fn typeVisited(tp: ?*const ir_type) i32 {
     return low_level.type_visited(tp);
 }
-pub fn getTypeLink(tp: ?*const ir_type) ?*c_void {
+pub fn getTypeLink(tp: ?*const ir_type) ?*anyopaque {
     return low_level.get_type_link(tp);
 }
-pub fn setTypeLink(tp: ?*ir_type, l: ?*c_void) void {
+pub fn setTypeLink(tp: ?*ir_type, l: ?*anyopaque) void {
     return low_level.set_type_link(tp, l);
 }
 pub fn incMasterTypeVisited() void {
@@ -3124,22 +3123,22 @@ pub fn cloneFrameType(@"type": ?*ir_type) ?*ir_type {
 pub fn isSegmentType(tp: ?*const ir_type) bool {
     return low_level.is_segment_type(tp) == 1;
 }
-pub fn typeWalk(pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void {
+pub fn typeWalk(pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void {
     return low_level.type_walk(pre, post, env);
 }
-pub fn typeWalkIrg(irg: ?*ir_graph, pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void {
+pub fn typeWalkIrg(irg: ?*ir_graph, pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void {
     return low_level.type_walk_irg(irg, pre, post, env);
 }
-pub fn typeWalkSuper2sub(pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void {
+pub fn typeWalkSuper2sub(pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void {
     return low_level.type_walk_super2sub(pre, post, env);
 }
-pub fn typeWalkSuper(pre: ?type_walk_func, post: ?type_walk_func, env: ?*c_void) void {
+pub fn typeWalkSuper(pre: ?type_walk_func, post: ?type_walk_func, env: ?*anyopaque) void {
     return low_level.type_walk_super(pre, post, env);
 }
-pub fn classWalkSuper2sub(pre: ?class_walk_func, post: ?class_walk_func, env: ?*c_void) void {
+pub fn classWalkSuper2sub(pre: ?class_walk_func, post: ?class_walk_func, env: ?*anyopaque) void {
     return low_level.class_walk_super2sub(pre, post, env);
 }
-pub fn walkTypesEntities(tp: ?*ir_type, doit: ?entity_walk_func, env: ?*c_void) void {
+pub fn walkTypesEntities(tp: ?*ir_type, doit: ?entity_walk_func, env: ?*anyopaque) void {
     return low_level.walk_types_entities(tp, doit, env);
 }
 pub fn getMethodParamAccess(ent: ?*ir_entity, pos: usize) ptr_access_kind {
@@ -3502,7 +3501,7 @@ pub fn computeCallgraph() void {
 pub fn freeCallgraph() void {
     return low_level.free_callgraph();
 }
-pub fn callgraphWalk(pre: ?callgraph_walk_func, post: ?callgraph_walk_func, env: ?*c_void) void {
+pub fn callgraphWalk(pre: ?callgraph_walk_func, post: ?callgraph_walk_func, env: ?*anyopaque) void {
     return low_level.callgraph_walk(pre, post, env);
 }
 pub fn findCallgraphRecursions() void {
@@ -3622,7 +3621,7 @@ pub fn irGetVersionRevision() [*]const u8 {
 pub fn irGetVersionBuild() [*]const u8 {
     return low_level.ir_get_version_build();
 }
-pub fn getKind(firm_thing: ?*const c_void) firm_kind {
+pub fn getKind(firm_thing: ?*const anyopaque) firm_kind {
     return @intToEnum(firm_kind, low_level.get_kind(firm_thing));
 }
 pub fn getIrnHeight(h: ?*const ir_heights_t, irn: ?*const ir_node) u32 {
@@ -5548,10 +5547,10 @@ pub fn irnVisited(node: ?*const ir_node) i32 {
 pub fn irnVisitedElseMark(node: ?*ir_node) i32 {
     return low_level.irn_visited_else_mark(node);
 }
-pub fn setIrnLink(node: ?*ir_node, link: ?*c_void) void {
+pub fn setIrnLink(node: ?*ir_node, link: ?*anyopaque) void {
     return low_level.set_irn_link(node, link);
 }
-pub fn getIrnLink(node: ?*const ir_node) ?*c_void {
+pub fn getIrnLink(node: ?*const ir_node) ?*anyopaque {
     return low_level.get_irn_link(node);
 }
 pub fn getIrnIrg(node: ?*const ir_node) ?*ir_graph {
@@ -5767,10 +5766,10 @@ pub fn isIrnStartBlockPlaced(node: ?*const ir_node) bool {
 pub fn getCondJmpPredicateName(pred: u32) [*]const u8 {
     return low_level.get_cond_jmp_predicate_name(pred);
 }
-pub fn getIrnGenericAttr(node: ?*ir_node) ?*c_void {
+pub fn getIrnGenericAttr(node: ?*ir_node) ?*anyopaque {
     return low_level.get_irn_generic_attr(node);
 }
-pub fn getIrnGenericAttrConst(node: ?*const ir_node) c_void {
+pub fn getIrnGenericAttrConst(node: ?*const ir_node) anyopaque {
     return low_level.get_irn_generic_attr_const(node);
 }
 pub fn getIrnIdx(node: ?*const ir_node) u32 {
@@ -5782,7 +5781,7 @@ pub fn setIrnDbgInfo(n: ?*ir_node, db: ?*dbg_info) void {
 pub fn getIrnDbgInfo(n: ?*const ir_node) ?*dbg_info {
     return low_level.get_irn_dbg_info(n);
 }
-pub fn gdbNodeHelper(firm_object: ?*const c_void) [*]const u8 {
+pub fn gdbNodeHelper(firm_object: ?*const anyopaque) [*]const u8 {
     return low_level.gdb_node_helper(firm_object);
 }
 pub fn irNewSwitchTable(irg: ?*ir_graph, n_entries: usize) ?*ir_switch_table {
@@ -5965,16 +5964,16 @@ pub fn getBlockPostdominatedNext(node: ?*const ir_node) ?*ir_node {
 pub fn irDeepestCommonDominator(block0: ?*ir_node, block1: ?*ir_node) ?*ir_node {
     return low_level.ir_deepest_common_dominator(block0, block1);
 }
-pub fn domTreeWalk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn domTreeWalk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.dom_tree_walk(n, pre, post, env);
 }
-pub fn postdomTreeWalk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn postdomTreeWalk(n: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.postdom_tree_walk(n, pre, post, env);
 }
-pub fn domTreeWalkIrg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn domTreeWalkIrg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.dom_tree_walk_irg(irg, pre, post, env);
 }
-pub fn postdomTreeWalkIrg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn postdomTreeWalkIrg(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.postdom_tree_walk_irg(irg, pre, post, env);
 }
 pub fn computeDoms(irg: ?*ir_graph) void {
@@ -6085,7 +6084,7 @@ pub fn setDumpBlockEdgeHook(func: dump_node_edge_func) void {
 pub fn getDumpBlockEdgeHook() dump_node_edge_func {
     return low_level.get_dump_block_edge_hook();
 }
-pub fn dumpAddNodeInfoCallback(cb: ?dump_node_info_cb_t, data: ?*c_void) ?*hook_entry_t {
+pub fn dumpAddNodeInfoCallback(cb: ?dump_node_info_cb_t, data: ?*anyopaque) ?*hook_entry_t {
     return low_level.dump_add_node_info_callback(cb, data);
 }
 pub fn dumpRemoveNodeInfoCallback(handle: ?*hook_entry_t) void {
@@ -6184,10 +6183,10 @@ pub fn assureEdges(irg: ?*ir_graph) void {
 pub fn assureEdgesKind(irg: ?*ir_graph, kind: u32) void {
     return low_level.assure_edges_kind(irg, kind);
 }
-pub fn irgBlockEdgesWalk(block: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgBlockEdgesWalk(block: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_block_edges_walk(block, pre, post, env);
 }
-pub fn irgWalkEdges(start: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkEdges(start: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_edges(start, pre, post, env);
 }
 pub fn setOptimize(value: i32) void {
@@ -6379,10 +6378,10 @@ pub fn getIrgCalleeInfoState(irg: ?*const ir_graph) irg_callee_info_state {
 pub fn setIrgCalleeInfoState(irg: ?*ir_graph, s: irg_callee_info_state) void {
     return low_level.set_irg_callee_info_state(irg, s);
 }
-pub fn setIrgLink(irg: ?*ir_graph, thing: ?*c_void) void {
+pub fn setIrgLink(irg: ?*ir_graph, thing: ?*anyopaque) void {
     return low_level.set_irg_link(irg, thing);
 }
-pub fn getIrgLink(irg: ?*const ir_graph) ?*c_void {
+pub fn getIrgLink(irg: ?*const ir_graph) ?*anyopaque {
     return low_level.get_irg_link(irg);
 }
 pub fn incIrgVisited(irg: ?*ir_graph) void {
@@ -6445,55 +6444,55 @@ pub fn assureIrgProperties(irg: ?*ir_graph, props: u32) void {
 pub fn confirmIrgProperties(irg: ?*ir_graph, props: u32) void {
     return low_level.confirm_irg_properties(irg, props);
 }
-pub fn setIrgLocDescription(irg: ?*ir_graph, n: i32, description: ?*c_void) void {
+pub fn setIrgLocDescription(irg: ?*ir_graph, n: i32, description: ?*anyopaque) void {
     return low_level.set_irg_loc_description(irg, n, description);
 }
-pub fn getIrgLocDescription(irg: ?*ir_graph, n: i32) ?*c_void {
+pub fn getIrgLocDescription(irg: ?*ir_graph, n: i32) ?*anyopaque {
     return low_level.get_irg_loc_description(irg, n);
 }
 pub fn getIrgLastIdx(irg: ?*const ir_graph) u32 {
     return low_level.get_irg_last_idx(irg);
 }
-pub fn irgWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk(node, pre, post, env);
 }
-pub fn irgWalkCore(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkCore(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_core(node, pre, post, env);
 }
-pub fn irgWalkGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_graph(irg, pre, post, env);
 }
-pub fn irgWalkInOrDep(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkInOrDep(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_in_or_dep(node, pre, post, env);
 }
-pub fn irgWalkInOrDepGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkInOrDepGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_in_or_dep_graph(irg, pre, post, env);
 }
-pub fn irgWalkTopological(irg: ?*ir_graph, walker: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkTopological(irg: ?*ir_graph, walker: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_topological(irg, walker, env);
 }
-pub fn allIrgWalk(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn allIrgWalk(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.all_irg_walk(pre, post, env);
 }
-pub fn irgBlockWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgBlockWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_block_walk(node, pre, post, env);
 }
-pub fn irgBlockWalkGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgBlockWalkGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_block_walk_graph(irg, pre, post, env);
 }
-pub fn walkConstCode(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn walkConstCode(pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.walk_const_code(pre, post, env);
 }
-pub fn irgWalkBlkwiseGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkBlkwiseGraph(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_blkwise_graph(irg, pre, post, env);
 }
-pub fn irgWalkBlkwiseDomTopDown(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkBlkwiseDomTopDown(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_blkwise_dom_top_down(irg, pre, post, env);
 }
-pub fn irgWalkAnchors(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalkAnchors(irg: ?*ir_graph, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_anchors(irg, pre, post, env);
 }
-pub fn irgWalk2(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgWalk2(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_walk_2(node, pre, post, env);
 }
 pub fn irExport(filename: [*]const u8) i32 {
@@ -6544,10 +6543,10 @@ pub fn getLoopElement(loop: ?*const ir_loop, pos: usize) loop_element {
 pub fn getLoopLoopNr(loop: ?*const ir_loop) i64 {
     return low_level.get_loop_loop_nr(loop);
 }
-pub fn setLoopLink(loop: ?*ir_loop, link: ?*c_void) void {
+pub fn setLoopLink(loop: ?*ir_loop, link: ?*anyopaque) void {
     return low_level.set_loop_link(loop, link);
 }
-pub fn getLoopLink(loop: ?*const ir_loop) ?*c_void {
+pub fn getLoopLink(loop: ?*const ir_loop) ?*anyopaque {
     return low_level.get_loop_link(loop);
 }
 pub fn constructCfBackedges(irg: ?*ir_graph) void {
@@ -6634,10 +6633,10 @@ pub fn getBlockCfgOutEx(node: ?*const ir_node, pos: u32, in_pos: [*]i32) ?*ir_no
 pub fn getBlockCfgOutKa(node: ?*const ir_node, pos: u32) ?*ir_node {
     return low_level.get_Block_cfg_out_ka(node, pos);
 }
-pub fn irgOutWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgOutWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_out_walk(node, pre, post, env);
 }
-pub fn irgOutBlockWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*c_void) void {
+pub fn irgOutBlockWalk(node: ?*ir_node, pre: ?irg_walk_func, post: ?irg_walk_func, env: ?*anyopaque) void {
     return low_level.irg_out_block_walk(node, pre, post, env);
 }
 pub fn computeIrgOuts(irg: ?*ir_graph) void {
