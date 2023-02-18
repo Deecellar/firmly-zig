@@ -198,7 +198,14 @@ fn createReturn() void {
     firm.setCurBlock(null);
 }
 
-fn parseLoop() void {
+const LoopFrame = struct {
+    jmp: ?*firm.ir_node,
+    loopHeaderBlock: ?*firm.ir_node,
+    trueProj: ?*firm.ir_node,
+};
+
+
+fn parseLoopProlog() LoopFrame {
     var jmp = firm.newJmp();
     firm.matureImmblock(firm.getCurBlock());
     var loopHeaderBlock = firm.newImmblock();
@@ -224,21 +231,27 @@ fn parseLoop() void {
     firm.addImmblockPred(loopBodyBlock, falseProj);
     firm.setCurBlock(loopBodyBlock);
 
-    suspend {}
+    return LoopFrame{
+        .jmp = jmp,
+        .loopHeaderBlock = loopHeaderBlock,
+        .trueProj = trueProj};
+}
 
-    var jmp2 = firm.newJmp();
-    firm.addImmblockPred(loopHeaderBlock, jmp2);
-    firm.matureImmblock(loopHeaderBlock);
+
+fn parseLoopEpilogue(frame: *LoopFrame) void {
+    var jmp = firm.newJmp();
+    firm.addImmblockPred(frame.loopHeaderBlock, jmp);
+    firm.matureImmblock(frame.loopHeaderBlock);
     firm.matureImmblock(firm.getCurBlock());
 
     var afterLoop = firm.newImmblock();
-    firm.addImmblockPred(afterLoop, trueProj);
+    firm.addImmblockPred(afterLoop, frame.trueProj);
     firm.setCurBlock(afterLoop);
 }
 
 fn parse(file: std.fs.File) !void {
     var buffer: [128 * 1024]u8 = undefined;
-    var frameBuffers: [256]@Frame(parseLoop) = undefined;
+    var frameBuffers: [256]LoopFrame = undefined;
     var reader = file.reader();
     var size: usize = 1;
     var loop: usize = 0;
@@ -257,11 +270,16 @@ fn parse(file: std.fs.File) !void {
                     ',' => inputByte(),
                     '[' => {
                         loop += 1;
-                        frameBuffers[loop - 1] = async parseLoop();
+                        frameBuffers[loop - 1] =  parseLoopProlog();
                     },
                     ']' => {
-                        resume frameBuffers[loop-1];
-                        if (@subWithOverflow(usize, loop, 1, &loop)) {
+                        var current_frame = frameBuffers[loop-1];
+                         parseLoopEpilogue(&current_frame);
+                        if (blk: {
+                            var res = @subWithOverflow( loop, 1, );
+                            loop = res[0];
+                            break :blk res[1] == 1;
+                        }) {
                             std.log.err("parse error: unexpected '['\n", .{});
                         }
                     },
