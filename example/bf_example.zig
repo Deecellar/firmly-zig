@@ -281,6 +281,7 @@ fn parse(file: std.fs.File) !void {
                             break :blk res[1] == 1;
                         }) {
                             std.log.err("parse error: unexpected '['\n", .{});
+                            return;
                         }
                     },
                     else => {},
