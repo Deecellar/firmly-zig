@@ -5,31 +5,25 @@ pub fn build(b: *std.build.Builder) void {
 
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
+    const mode = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
     
-    const lib = b.addStaticLibrary("firmly-zig", "firmly-zig.zig");
-    lib.setBuildMode(mode);
+    const lib = b.addStaticLibrary(std.build.StaticLibraryOptions{.name = "firmly-zig", .root_source_file = .{.path = "firmly-zig.zig"}, .optimize = mode, .target = target });
     lib.linkLibC();
     lib.linkSystemLibrary("firm");
     lib.install();
 
     if(build_examples) {
-        const examples = b.addExecutable("firmly-zig-brainfuck-low-level", "example/bf_example.zig");
-        examples.setBuildMode(mode);
-        examples.addPackagePath("firmly-zig", "firmly-zig.zig");
+        const examples = b.addExecutable(std.build.ExecutableOptions{.name = "firmly-zig-brainfuck", .root_source_file = .{.path = "example/bf_example.zig"}, .optimize = mode, .target = target });
+        const firmly_zig_module = std.build.CreateModuleOptions{.source_file = .{.path = "firmly-zig.zig"}};
+        examples.addAnonymousModule("firmly-zig", firmly_zig_module );
         examples.linkLibrary(lib);
         examples.install();
-        const examples_codegen = b.addExecutable("firmly-zig-brainfuck-codegen", "example/bf_codegen_example.zig");
-        examples_codegen.setBuildMode(mode);
-        examples_codegen.addPackagePath("firmly-zig", "firmly-zig.zig");
-        examples.linkLibrary(lib);
-        examples_codegen.install();
         b.installBinFile("example/test.bf", "test.bf");
         b.installBinFile("example/bf_runtime.zig", "bf_runtime.zig");
     }
 
-    var main_tests = b.addTest("src/main.zig");
-    main_tests.setBuildMode(mode);
+    var main_tests = b.addTest(std.build.TestOptions{.name = "firmly-zig-tests", .root_source_file = .{.path = "firmly-zig.zig"}, .optimize = mode, .target = target });
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&main_tests.step);
