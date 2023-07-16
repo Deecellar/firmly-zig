@@ -138,20 +138,20 @@ pub const calling_convention_enum = enum(u32) {
     fpreg_param = 0x40000000,
     pub const calling_helpers = enum(u32) {
         decl_set = 0,
-        stdcall_set = @enumToInt(calling_convention_enum.callee_clear_stk),
-        fastcall_set = @enumToInt(calling_convention_enum.callee_clear_stk) | @enumToInt(calling_convention_enum.reg_param),
+        stdcall_set = @intFromEnum(calling_convention_enum.callee_clear_stk),
+        fastcall_set = @intFromEnum(calling_convention_enum.callee_clear_stk) | @intFromEnum(calling_convention_enum.reg_param),
     };
     pub const cc_bits: u32 = (0xFF << 24);
     pub fn isCallType(mask: u32, calling_help: calling_helpers) bool {
         switch (calling_help) {
-            .decl_set => return (mask & cc_bits) == @enumToInt(calling_helpers.decl_set),
-            .stdcall_set => return (mask & cc_bits) == @enumToInt(calling_helpers.stdcall_set),
-            .fastcall_set => return (mask & cc_bits) == @enumToInt(calling_helpers.fastcall_set),
+            .decl_set => return (mask & cc_bits) == @intFromEnum(calling_helpers.decl_set),
+            .stdcall_set => return (mask & cc_bits) == @intFromEnum(calling_helpers.stdcall_set),
+            .fastcall_set => return (mask & cc_bits) == @intFromEnum(calling_helpers.fastcall_set),
             else => unreachable,
         }
     }
     pub fn setCdecl(mask: u32, calling_help: calling_helpers) u32 {
-        return (((mask & ~cc_bits)) | @enumToInt(calling_help));
+        return (((mask & ~cc_bits)) | @intFromEnum(calling_help));
     }
 };
 const convention = enum {
@@ -2502,7 +2502,7 @@ pub const low_level = struct {
 };
 
 pub fn getEntityVisibility(entity: ?*const ir_entity) ir_visibility {
-    return @intToEnum(ir_visibility, low_level.get_entity_visibility(entity));
+    return @as(ir_visibility, @enumFromInt(low_level.get_entity_visibility(entity)));
 }
 pub fn setEntityVisibility(entity: ?*ir_entity, visibility: ir_visibility) void {
     return low_level.set_entity_visibility(entity, visibility);
@@ -2517,13 +2517,13 @@ pub fn newEntity(owner: ?*ir_type, name: [*]const u8, tp: ?*ir_type) ?*ir_entity
     return low_level.new_entity(owner, name, tp);
 }
 pub fn newGlobalEntity(segment: ?*ir_type, ld_name: [*]const u8, @"type": ?*ir_type, visibility: ir_visibility, linkage: u32) ?*ir_entity {
-    return low_level.new_global_entity(segment, ld_name, @"type", @enumToInt(visibility), linkage);
+    return low_level.new_global_entity(segment, ld_name, @"type", @intFromEnum(visibility), linkage);
 }
 pub fn newParameterEntity(owner: ?*ir_type, pos: usize, @"type": ?*ir_type) ?*ir_entity {
     return low_level.new_parameter_entity(owner, pos, @"type");
 }
 pub fn newAliasEntity(owner: ?*ir_type, name: [*]const u8, alias: ?*ir_entity, @"type": ?*ir_type, visibility: ir_visibility) ?*ir_entity {
-    return low_level.new_alias_entity(owner, name, alias, @"type", @enumToInt(visibility));
+    return low_level.new_alias_entity(owner, name, alias, @"type", @intFromEnum(visibility));
 }
 pub fn setEntityAlias(alias: ?*ir_entity, aliased: ?*ir_entity) void {
     return low_level.set_entity_alias(alias, aliased);
@@ -2574,7 +2574,7 @@ pub fn setEntityType(ent: ?*ir_entity, tp: ?*ir_type) void {
     return low_level.set_entity_type(ent, tp);
 }
 pub fn getEntityLinkage(entity: ?*const ir_entity) ir_linkage {
-    return @intToEnum(ir_linkage, low_level.get_entity_linkage(entity));
+    return @as(ir_linkage, @enumFromInt(low_level.get_entity_linkage(entity)));
 }
 pub fn setEntityLinkage(entity: ?*ir_entity, linkage: u32) void {
     return low_level.set_entity_linkage(entity, linkage);
@@ -2586,7 +2586,7 @@ pub fn removeEntityLinkage(entity: ?*ir_entity, linkage: u32) void {
     return low_level.remove_entity_linkage(entity, linkage);
 }
 pub fn getEntityVolatility(ent: ?*const ir_entity) ir_volatility {
-    return @intToEnum(ir_volatility, low_level.get_entity_volatility(ent));
+    return @as(ir_volatility, @enumFromInt(low_level.get_entity_volatility(ent)));
 }
 pub fn setEntityVolatility(ent: ?*ir_entity, vol: u32) void {
     return low_level.set_entity_volatility(ent, vol);
@@ -2601,7 +2601,7 @@ pub fn setEntityAlignment(entity: ?*ir_entity, alignment: u32) void {
     return low_level.set_entity_alignment(entity, alignment);
 }
 pub fn getEntityAligned(ent: ?*const ir_entity) ir_align {
-    return @intToEnum(ir_align, low_level.get_entity_aligned(ent));
+    return @as(ir_align, @enumFromInt(low_level.get_entity_aligned(ent)));
 }
 pub fn setEntityAligned(ent: ?*ir_entity, a: u32) void {
     return low_level.set_entity_aligned(ent, a);
@@ -2652,7 +2652,7 @@ pub fn getEntityLabel(ent: ?*const ir_entity) ir_label_t {
     return low_level.get_entity_label(ent);
 }
 pub fn getEntityUsage(ent: ?*const ir_entity) ir_entity_usage {
-    return @intToEnum(ir_entity_usage, low_level.get_entity_usage(ent));
+    return @as(ir_entity_usage, @enumFromInt(low_level.get_entity_usage(ent)));
 }
 pub fn setEntityUsage(ent: ?*ir_entity, flag: u32) void {
     return low_level.set_entity_usage(ent, flag);
@@ -2673,7 +2673,7 @@ pub fn setEntityParameterNumber(entity: ?*ir_entity, n: usize) void {
     return low_level.set_entity_parameter_number(entity, n);
 }
 pub fn getInitializerKind(initializer: ?*const ir_initializer_t) ir_initializer_kind_t {
-    return @intToEnum(ir_initializer_kind_t, low_level.get_initializer_kind(initializer));
+    return @as(ir_initializer_kind_t, @enumFromInt(low_level.get_initializer_kind(initializer)));
 }
 pub fn getInitializerKindName(ini: u32) [*]const u8 {
     return low_level.get_initializer_kind_name(ini);
@@ -2775,7 +2775,7 @@ pub fn entityHasAdditionalProperties(entity: ?*const ir_entity) i32 {
     return low_level.entity_has_additional_properties(entity);
 }
 pub fn getEntityAdditionalProperties(ent: ?*const ir_entity) mtp_additional_properties {
-    return @intToEnum(mtp_additional_properties, low_level.get_entity_additional_properties(ent));
+    return @as(mtp_additional_properties, @enumFromInt(low_level.get_entity_additional_properties(ent)));
 }
 pub fn setEntityAdditionalProperties(ent: ?*ir_entity, prop: u32) void {
     return low_level.set_entity_additional_properties(ent, prop);
@@ -2811,7 +2811,7 @@ pub fn invalidateIrpInhTransitiveClosureState() void {
     return low_level.invalidate_irp_inh_transitive_closure_state();
 }
 pub fn getIrpInhTransitiveClosureState() inh_transitive_closure_state {
-    return @intToEnum(inh_transitive_closure_state, low_level.get_irp_inh_transitive_closure_state());
+    return @as(inh_transitive_closure_state, @enumFromInt(low_level.get_irp_inh_transitive_closure_state()));
 }
 pub fn computeInhTransitiveClosure() void {
     return low_level.compute_inh_transitive_closure();
@@ -2856,7 +2856,7 @@ pub fn freeType(tp: ?*ir_type) void {
     return low_level.free_type(tp);
 }
 pub fn getTypeOpcode(@"type": ?*const ir_type) tp_opcode {
-    return @intToEnum(tp_opcode, low_level.get_type_opcode(@"type"));
+    return @as(tp_opcode, @enumFromInt(low_level.get_type_opcode(@"type")));
 }
 pub fn irPrintType(buffer: [*]u8, buffer_size: usize, tp: ?*const ir_type) void {
     return low_level.ir_print_type(buffer, buffer_size, tp);
@@ -2865,7 +2865,7 @@ pub fn getTypeStateName(s: u32) [*]const u8 {
     return low_level.get_type_state_name(s);
 }
 pub fn getTypeState(tp: ?*const ir_type) ir_type_state {
-    return @intToEnum(ir_type_state, low_level.get_type_state(tp));
+    return @as(ir_type_state, @enumFromInt(low_level.get_type_state(tp)));
 }
 pub fn setTypeState(tp: ?*ir_type, state: u32) void {
     return low_level.set_type_state(tp, state);
@@ -3004,9 +3004,9 @@ pub fn isUnionType(uni: ?*const ir_type) bool {
 }
 pub fn newTypeMethod(n_param: usize, n_res: usize, is_variadic: bool, cc_mask: calling_convention, property_mask: mtp_additional_properties) ?*ir_type {
     switch (cc_mask) {
-        .calling_convention => return low_level.new_type_method(n_param, n_res, @boolToInt(is_variadic), @enumToInt(cc_mask.calling_convention), property_mask),
-        .calling_convention_special => return low_level.new_type_method(n_param, n_res, @boolToInt(is_variadic), @enumToInt(cc_mask.calling_convention_special), property_mask),
-        .value => return low_level.new_type_method(n_param, n_res, @boolToInt(is_variadic), cc_mask.value, property_mask),
+        .calling_convention => return low_level.new_type_method(n_param, n_res, @intFromBool(is_variadic), @intFromEnum(cc_mask.calling_convention), property_mask),
+        .calling_convention_special => return low_level.new_type_method(n_param, n_res, @intFromBool(is_variadic), @intFromEnum(cc_mask.calling_convention_special), property_mask),
+        .value => return low_level.new_type_method(n_param, n_res, @intFromBool(is_variadic), cc_mask.value, property_mask),
     }
 }
 pub fn getMethodNParams(method: ?*const ir_type) usize {
@@ -3031,10 +3031,10 @@ pub fn isMethodVariadic(method: ?*const ir_type) bool {
     return low_level.is_method_variadic(method) == 1;
 }
 pub fn getMethodAdditionalProperties(method: ?*const ir_type) mtp_additional_properties {
-    return @intToEnum(mtp_additional_properties, low_level.get_method_additional_properties(method));
+    return @as(mtp_additional_properties, @enumFromInt(low_level.get_method_additional_properties(method)));
 }
 pub fn getMethodCallingConvention(method: ?*const ir_type) calling_convention {
-    return @intToEnum(calling_convention, low_level.get_method_calling_convention(method));
+    return @as(calling_convention, @enumFromInt(low_level.get_method_calling_convention(method)));
 }
 pub fn getMethodNRegparams(method: ?*ir_type) u32 {
     return low_level.get_method_n_regparams(method);
@@ -3142,7 +3142,7 @@ pub fn walkTypesEntities(tp: ?*ir_type, doit: ?entity_walk_func, env: ?*anyopaqu
     return low_level.walk_types_entities(tp, doit, env);
 }
 pub fn getMethodParamAccess(ent: ?*ir_entity, pos: usize) ptr_access_kind {
-    return @intToEnum(ptr_access_kind, low_level.get_method_param_access(ent, pos));
+    return @as(ptr_access_kind, @enumFromInt(low_level.get_method_param_access(ent, pos)));
 }
 pub fn analyzeIrgArgs(irg: ?*ir_graph) void {
     return low_level.analyze_irg_args(irg);
@@ -3178,7 +3178,7 @@ pub fn getModeSizeBytes(mode: ?*const ir_mode) u32 {
     return low_level.get_mode_size_bytes(mode);
 }
 pub fn getModeArithmetic(mode: ?*const ir_mode) ir_mode_arithmetic {
-    return @intToEnum(ir_mode_arithmetic, low_level.get_mode_arithmetic(mode));
+    return @as(ir_mode_arithmetic, @enumFromInt(low_level.get_mode_arithmetic(mode)));
 }
 pub fn getModeModuloShift(mode: ?*const ir_mode) u32 {
     return low_level.get_mode_modulo_shift(mode);
@@ -3313,7 +3313,7 @@ pub fn getModeExponentSize(mode: ?*const ir_mode) u32 {
     return low_level.get_mode_exponent_size(mode);
 }
 pub fn getModeFloatIntOverflow(mode: ?*const ir_mode) float_int_conversion_overflow_style_t {
-    return @intToEnum(float_int_conversion_overflow_style_t, low_level.get_mode_float_int_overflow(mode));
+    return @as(float_int_conversion_overflow_style_t, @enumFromInt(low_level.get_mode_float_int_overflow(mode)));
 }
 pub fn isReinterpretCast(src: ?*const ir_mode, dst: ?*const ir_mode) bool {
     return low_level.is_reinterpret_cast(src, dst) == 1;
@@ -3430,7 +3430,7 @@ pub fn valueNotNull(n: ?*const ir_node, confirm: [*]?*const ir_node) i32 {
     return low_level.value_not_null(n, confirm);
 }
 pub fn computedValueCmpConfirm(left: ?*ir_node, right: ?*ir_node, relation: ir_relation) ?*ir_tarval {
-    return low_level.computed_value_Cmp_Confirm(left, right, @enumToInt(relation));
+    return low_level.computed_value_Cmp_Confirm(left, right, @intFromEnum(relation));
 }
 pub fn createCompilerlibEntity(name: [*]const u8, mt: ?*ir_type) ?*ir_entity {
     return low_level.create_compilerlib_entity(name, mt);
@@ -3445,7 +3445,7 @@ pub fn beMain(output: *std.c.FILE, compilation_unit_name: [*]const u8) void {
     return low_level.be_main(output, compilation_unit_name);
 }
 pub fn beParseAsmConstraints(constraints: [*]const u8) asm_constraint_flags_t {
-    return @intToEnum(asm_constraint_flags_t, low_level.be_parse_asm_constraints(constraints));
+    return @as(asm_constraint_flags_t, @enumFromInt(low_level.be_parse_asm_constraints(constraints)));
 }
 pub fn beIsValidClobber(clobber: [*]const u8) i32 {
     return low_level.be_is_valid_clobber(clobber);
@@ -3457,7 +3457,7 @@ pub fn beDwarfSetCompilationDirectory(directory: [*]const u8) void {
     return low_level.be_dwarf_set_compilation_directory(directory);
 }
 pub fn getIrpCallgraphState() irp_callgraph_state {
-    return @intToEnum(irp_callgraph_state, low_level.get_irp_callgraph_state());
+    return @as(irp_callgraph_state, @enumFromInt(low_level.get_irp_callgraph_state()));
 }
 pub fn setIrpCallgraphState(s: u32) void {
     return low_level.set_irp_callgraph_state(s);
@@ -3511,7 +3511,7 @@ pub fn analyseLoopNestingDepth() void {
     return low_level.analyse_loop_nesting_depth();
 }
 pub fn getIrpLoopNestingDepthState() loop_nesting_depth_state {
-    return @intToEnum(loop_nesting_depth_state, low_level.get_irp_loop_nesting_depth_state());
+    return @as(loop_nesting_depth_state, @enumFromInt(low_level.get_irp_loop_nesting_depth_state()));
 }
 pub fn setIrpLoopNestingDepthState(s: u32) void {
     return low_level.set_irp_loop_nesting_depth_state(s);
@@ -3622,7 +3622,7 @@ pub fn irGetVersionBuild() [*]const u8 {
     return low_level.ir_get_version_build();
 }
 pub fn getKind(firm_thing: ?*const anyopaque) firm_kind {
-    return @intToEnum(firm_kind, low_level.get_kind(firm_thing));
+    return @as(firm_kind, @enumFromInt(low_level.get_kind(firm_thing)));
 }
 pub fn getIrnHeight(h: ?*const ir_heights_t, irn: ?*const ir_node) u32 {
     return low_level.get_irn_height(h, irn);
@@ -3667,7 +3667,7 @@ pub fn getOpPinStateName(s: u32) [*]const u8 {
     return low_level.get_op_pin_state_name(s);
 }
 pub fn getOpPinned(op: ?*const ir_op) op_pin_state {
-    return @intToEnum(op_pin_state, low_level.get_op_pinned(op));
+    return @as(op_pin_state, @enumFromInt(low_level.get_op_pinned(op)));
 }
 pub fn getNextIrOpcode() u32 {
     return low_level.get_next_ir_opcode();
@@ -3682,7 +3682,7 @@ pub fn setGenericFunctionPtr(op: ?*ir_op, func: op_func) void {
     return low_level.set_generic_function_ptr(op, func);
 }
 pub fn getOpFlags(op: ?*const ir_op) irop_flags {
-    return @intToEnum(irop_flags, low_level.get_op_flags(op));
+    return @as(irop_flags, @enumFromInt(low_level.get_op_flags(op)));
 }
 pub fn setOpHash(op: ?*ir_op, func: hash_func) void {
     return low_level.set_op_hash(op, func);
@@ -4114,7 +4114,7 @@ pub fn getBuiltinParamArr(node: ?*ir_node) [*]?*ir_node {
     return low_level.get_Builtin_param_arr(node);
 }
 pub fn getBuiltinKind(node: ?*const ir_node) ir_builtin_kind {
-    return @intToEnum(ir_builtin_kind, low_level.get_Builtin_kind(node));
+    return @as(ir_builtin_kind, @enumFromInt(low_level.get_Builtin_kind(node)));
 }
 pub fn setBuiltinKind(node: ?*ir_node, kind: u32) void {
     return low_level.set_Builtin_kind(node, kind);
@@ -4204,7 +4204,7 @@ pub fn setCmpRight(node: ?*ir_node, right: ?*ir_node) void {
     return low_level.set_Cmp_right(node, right);
 }
 pub fn getCmpRelation(node: ?*const ir_node) ir_relation {
-    return @intToEnum(ir_relation, low_level.get_Cmp_relation(node));
+    return @as(ir_relation, @enumFromInt(low_level.get_Cmp_relation(node)));
 }
 pub fn setCmpRelation(node: ?*ir_node, relation: ir_relation) void {
     return low_level.set_Cmp_relation(node, relation);
@@ -4234,7 +4234,7 @@ pub fn setCondSelector(node: ?*ir_node, selector: ?*ir_node) void {
     return low_level.set_Cond_selector(node, selector);
 }
 pub fn getCondJmpPred(node: ?*const ir_node) cond_jmp_predicate {
-    return @intToEnum(cond_jmp_predicate, low_level.get_Cond_jmp_pred(node));
+    return @as(cond_jmp_predicate, @enumFromInt(low_level.get_Cond_jmp_pred(node)));
 }
 pub fn setCondJmpPred(node: ?*ir_node, jmp_pred: u32) void {
     return low_level.set_Cond_jmp_pred(node, jmp_pred);
@@ -4270,7 +4270,7 @@ pub fn setConfirmBound(node: ?*ir_node, bound: ?*ir_node) void {
     return low_level.set_Confirm_bound(node, bound);
 }
 pub fn getConfirmRelation(node: ?*const ir_node) ir_relation {
-    return @intToEnum(ir_relation, low_level.get_Confirm_relation(node));
+    return @as(ir_relation, @enumFromInt(low_level.get_Confirm_relation(node)));
 }
 pub fn setConfirmRelation(node: ?*ir_node, relation: ir_relation) void {
     return low_level.set_Confirm_relation(node, relation);
@@ -4366,7 +4366,7 @@ pub fn setCopybType(node: ?*ir_node, @"type": ?*ir_type) void {
     return low_level.set_CopyB_type(node, @"type");
 }
 pub fn getCopybVolatility(node: ?*const ir_node) ir_volatility {
-    return @intToEnum(ir_volatility, low_level.get_CopyB_volatility(node));
+    return @as(ir_volatility, @enumFromInt(low_level.get_CopyB_volatility(node)));
 }
 pub fn setCopybVolatility(node: ?*ir_node, volatility: u32) void {
     return low_level.set_CopyB_volatility(node, volatility);
@@ -4630,13 +4630,13 @@ pub fn setLoadType(node: ?*ir_node, @"type": ?*ir_type) void {
     return low_level.set_Load_type(node, @"type");
 }
 pub fn getLoadVolatility(node: ?*const ir_node) ir_volatility {
-    return @intToEnum(ir_volatility, low_level.get_Load_volatility(node));
+    return @as(ir_volatility, @enumFromInt(low_level.get_Load_volatility(node)));
 }
 pub fn setLoadVolatility(node: ?*ir_node, volatility: u32) void {
     return low_level.set_Load_volatility(node, volatility);
 }
 pub fn getLoadUnaligned(node: ?*const ir_node) ir_align {
-    return @intToEnum(ir_align, low_level.get_Load_unaligned(node));
+    return @as(ir_align, @enumFromInt(low_level.get_Load_unaligned(node)));
 }
 pub fn setLoadUnaligned(node: ?*ir_node, unaligned: u32) void {
     return low_level.set_Load_unaligned(node, unaligned);
@@ -5320,13 +5320,13 @@ pub fn setStoreType(node: ?*ir_node, @"type": ?*ir_type) void {
     return low_level.set_Store_type(node, @"type");
 }
 pub fn getStoreVolatility(node: ?*const ir_node) ir_volatility {
-    return @intToEnum(ir_volatility, low_level.get_Store_volatility(node));
+    return @as(ir_volatility, @enumFromInt(low_level.get_Store_volatility(node)));
 }
 pub fn setStoreVolatility(node: ?*ir_node, volatility: u32) void {
     return low_level.set_Store_volatility(node, volatility);
 }
 pub fn getStoreUnaligned(node: ?*const ir_node) ir_align {
-    return @intToEnum(ir_align, low_level.get_Store_unaligned(node));
+    return @as(ir_align, @enumFromInt(low_level.get_Store_unaligned(node)));
 }
 pub fn setStoreUnaligned(node: ?*ir_node, unaligned: u32) void {
     return low_level.set_Store_unaligned(node, unaligned);
@@ -5680,10 +5680,10 @@ pub fn getRelationString(relation: ir_relation) [*]const u8 {
     return low_level.get_relation_string(relation);
 }
 pub fn getNegatedRelation(relation: ir_relation) ir_relation {
-    return @intToEnum(ir_relation, low_level.get_negated_relation(relation));
+    return @as(ir_relation, @enumFromInt(low_level.get_negated_relation(relation)));
 }
 pub fn getInversedRelation(relation: ir_relation) ir_relation {
-    return @intToEnum(ir_relation, low_level.get_inversed_relation(relation));
+    return @as(ir_relation, @enumFromInt(low_level.get_inversed_relation(relation)));
 }
 pub fn getPhiNext(phi: ?*const ir_node) ?*ir_node {
     return low_level.get_Phi_next(phi);
@@ -6052,7 +6052,7 @@ pub fn irSetDumpVerbosity(verbosity: u32) void {
     return low_level.ir_set_dump_verbosity(verbosity);
 }
 pub fn irGetDumpVerbosity() ir_dump_verbosity_t {
-    return @intToEnum(ir_dump_verbosity_t, low_level.ir_get_dump_verbosity());
+    return @as(ir_dump_verbosity_t, @enumFromInt(low_level.ir_get_dump_verbosity()));
 }
 pub fn irSetDumpFlags(flags: u32) void {
     return low_level.ir_set_dump_flags(flags);
@@ -6064,7 +6064,7 @@ pub fn irRemoveDumpFlags(flags: u32) void {
     return low_level.ir_remove_dump_flags(flags);
 }
 pub fn irGetDumpFlags() ir_dump_flags_t {
-    return @intToEnum(ir_dump_flags_t, low_level.ir_get_dump_flags());
+    return @as(ir_dump_flags_t, @enumFromInt(low_level.ir_get_dump_flags()));
 }
 pub fn setDumpNodeVcgattrHook(hook: dump_node_vcgattr_func) void {
     return low_level.set_dump_node_vcgattr_hook(hook);
@@ -6370,7 +6370,7 @@ pub fn getIdxIrn(irg: ?*const ir_graph, idx: u32) ?*ir_node {
     return low_level.get_idx_irn(irg, idx);
 }
 pub fn getIrgPinned(irg: ?*const ir_graph) op_pin_state {
-    return @intToEnum(op_pin_state, low_level.get_irg_pinned(irg));
+    return @as(op_pin_state, @enumFromInt(low_level.get_irg_pinned(irg)));
 }
 pub fn getIrgCalleeInfoState(irg: ?*const ir_graph) irg_callee_info_state {
     return low_level.get_irg_callee_info_state(irg);
@@ -6418,7 +6418,7 @@ pub fn irFreeResources(irg: ?*ir_graph, resources: u32) void {
     return low_level.ir_free_resources(irg, resources);
 }
 pub fn irResourcesReserved(irg: ?*const ir_graph) ir_resources_t {
-    return @intToEnum(ir_resources_t, low_level.ir_resources_reserved(irg));
+    return @as(ir_resources_t, @enumFromInt(low_level.ir_resources_reserved(irg)));
 }
 pub fn addIrgConstraints(irg: ?*ir_graph, constraints: u32) void {
     return low_level.add_irg_constraints(irg, constraints);
@@ -6565,13 +6565,13 @@ pub fn getIrAliasRelationName(rel: u32) [*]const u8 {
     return low_level.get_ir_alias_relation_name(rel);
 }
 pub fn getAliasRelation(addr1: ?*const ir_node, type1: ?*const ir_type, size1: u32, addr2: ?*const ir_node, type2: ?*const ir_type, size2: u32) ir_alias_relation {
-    return @intToEnum(ir_alias_relation, low_level.get_alias_relation(addr1, type1, size1, addr2, type2, size2));
+    return @as(ir_alias_relation, @enumFromInt(low_level.get_alias_relation(addr1, type1, size1, addr2, type2, size2)));
 }
 pub fn assureIrgEntityUsageComputed(irg: ?*ir_graph) void {
     return low_level.assure_irg_entity_usage_computed(irg);
 }
 pub fn getIrpGlobalsEntityUsageState() ir_entity_usage_computed_state {
-    return @intToEnum(ir_entity_usage_computed_state, low_level.get_irp_globals_entity_usage_state());
+    return @as(ir_entity_usage_computed_state, @enumFromInt(low_level.get_irp_globals_entity_usage_state()));
 }
 pub fn setIrpGlobalsEntityUsageState(state: u32) void {
     return low_level.set_irp_globals_entity_usage_state(state);
@@ -6580,7 +6580,7 @@ pub fn assureIrpGlobalsEntityUsageComputed() void {
     return low_level.assure_irp_globals_entity_usage_computed();
 }
 pub fn getIrgMemoryDisambiguatorOptions(irg: ?*const ir_graph) ir_disambiguator_options {
-    return @intToEnum(ir_disambiguator_options, low_level.get_irg_memory_disambiguator_options(irg));
+    return @as(ir_disambiguator_options, @enumFromInt(low_level.get_irg_memory_disambiguator_options(irg)));
 }
 pub fn setIrgMemoryDisambiguatorOptions(irg: ?*ir_graph, options: u32) void {
     return low_level.set_irg_memory_disambiguator_options(irg, options);
@@ -6601,7 +6601,7 @@ pub fn irIsNegatedValue(a: ?*const ir_node, b: ?*const ir_node) i32 {
     return low_level.ir_is_negated_value(a, b);
 }
 pub fn irGetPossibleCmpRelations(left: ?*const ir_node, right: ?*const ir_node) ir_relation {
-    return @intToEnum(ir_relation, low_level.ir_get_possible_cmp_relations(left, right));
+    return @as(ir_relation, @enumFromInt(low_level.ir_get_possible_cmp_relations(left, right)));
 }
 pub fn irAllowImpreciseFloatTransforms(enable: i32) void {
     return low_level.ir_allow_imprecise_float_transforms(enable);
@@ -6655,7 +6655,7 @@ pub fn irpFreeResources(irp2: ?*ir_prog, resources: u32) void {
     return low_level.irp_free_resources(irp2, resources);
 }
 pub fn irpResourcesReserved(irp3: ?*const ir_prog) irp_resources_t {
-    return @intToEnum(irp_resources_t, low_level.irp_resources_reserved(irp3));
+    return @as(irp_resources_t, @enumFromInt(low_level.irp_resources_reserved(irp3)));
 }
 pub fn getIrp() ?*ir_prog {
     return low_level.get_irp();
@@ -6895,7 +6895,7 @@ pub fn irTargetFloatArithmeticMode() ?*ir_mode {
     return low_level.ir_target_float_arithmetic_mode();
 }
 pub fn irTargetFloatIntOverflowStyle() float_int_conversion_overflow_style_t {
-    return @intToEnum(float_int_conversion_overflow_style_t, low_level.ir_target_float_int_overflow_style());
+    return @as(float_int_conversion_overflow_style_t, @enumFromInt(low_level.ir_target_float_int_overflow_style()));
 }
 pub fn irPlatformLongLongAndDoubleStructAlignOverride() u32 {
     return low_level.ir_platform_long_long_and_double_struct_align_override();
@@ -6910,13 +6910,13 @@ pub fn irPlatformDefineValue(define: ?*const ir_platform_define_t) [*]const u8 {
     return low_level.ir_platform_define_value(define);
 }
 pub fn irPlatformWcharType() ir_platform_type_t {
-    return @intToEnum(ir_platform_type_t, low_level.ir_platform_wchar_type());
+    return @as(ir_platform_type_t, @enumFromInt(low_level.ir_platform_wchar_type()));
 }
 pub fn irPlatformWcharIsSigned() i32 {
     return low_level.ir_platform_wchar_is_signed();
 }
 pub fn irPlatformIntptrType() ir_platform_type_t {
-    return @intToEnum(ir_platform_type_t, low_level.ir_platform_intptr_type());
+    return @as(ir_platform_type_t, @enumFromInt(low_level.ir_platform_intptr_type()));
 }
 pub fn irPlatformTypeSize(@"type": u32) u32 {
     return low_level.ir_platform_type_size(@"type");
@@ -7087,7 +7087,7 @@ pub fn tarvalGetWrapOnOverflow() i32 {
     return low_level.tarval_get_wrap_on_overflow();
 }
 pub fn tarvalCmp(a: ?*const ir_tarval, b: ?*const ir_tarval) ir_relation {
-    return @intToEnum(ir_relation, low_level.tarval_cmp(a, b));
+    return @as(ir_relation, @enumFromInt(low_level.tarval_cmp(a, b)));
 }
 pub fn tarvalConvertTo(src: ?*const ir_tarval, mode: ?*ir_mode) ?*ir_tarval {
     return low_level.tarval_convert_to(src, mode);
@@ -7198,7 +7198,7 @@ pub fn freeVrpData(irg: ?*ir_graph) void {
     return low_level.free_vrp_data(irg);
 }
 pub fn vrpCmp(left: ?*const ir_node, right: ?*const ir_node) ir_relation {
-    return @intToEnum(ir_relation, low_level.vrp_cmp(left, right));
+    return @as(ir_relation, @enumFromInt(low_level.vrp_cmp(left, right)));
 }
 pub fn vrpGetInfo(n: ?*const ir_node) [*]vrp_attr {
     return low_level.vrp_get_info(n);
