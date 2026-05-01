@@ -1,0 +1,12 @@
+.{
+    .name = .firmly_zig,
+    .version = "0.17.0-dev.131+73c51c142",
+    .dependencies = .{
+        .libfirm = .{
+            .url = "git+https://github.com/libfirm/libfirm#114012d1d93427e63ba2f2ab51318e8a1b92f06c",
+            .hash = "N-V-__8AABBlYQCxchHXIAm5D8SOLLEneEpwQCnczzhD-Ilb",
+        },
+    },
+    .paths = .{""},
+    .fingerprint = 0xedb20b8e476556fd,
+}

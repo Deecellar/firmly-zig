@@ -6411,14 +6411,14 @@ pub fn getIrgBlockVisited(irg: ?*const ir_graph) ir_visited_t {
 pub fn setIrgBlockVisited(irg: ?*ir_graph, i: ir_visited_t) void {
     return low_level.set_irg_block_visited(irg, i);
 }
-pub fn irReserveResources(irg: ?*ir_graph, resources: u32) void {
+pub fn irReserveResources(irg: ?*ir_graph, resources: ir_resources_t) void {
     return low_level.ir_reserve_resources(irg, resources);
 }
-pub fn irFreeResources(irg: ?*ir_graph, resources: u32) void {
+pub fn irFreeResources(irg: ?*ir_graph, resources: ir_resources_t) void {
     return low_level.ir_free_resources(irg, resources);
 }
 pub fn irResourcesReserved(irg: ?*const ir_graph) ir_resources_t {
-    return @as(ir_resources_t, @enumFromInt(low_level.ir_resources_reserved(irg)));
+    return low_level.ir_resources_reserved(irg);
 }
 pub fn addIrgConstraints(irg: ?*ir_graph, constraints: u32) void {
     return low_level.add_irg_constraints(irg, constraints);
