@@ -17,7 +17,7 @@ fn initializeFirm() void {
 
 fn createGraph() ?*firm.ir_graph {
     const methodType: ?*firm.ir_type = firm.newTypeMethod(0, 1, false, .{ .calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set }, firm.mtp_additional_properties.no_property);
-    const intType: ?*firm.ir_type = firm.newTypePrimitive(firm.getMode(.Is));
+    const intType: ?*firm.ir_type = firm.newTypePrimitive(.Is);
     firm.setMethodResType(methodType, 0, intType);
 
     const id = firm.irPlatformMangleGlobal("bf_main");
@@ -31,7 +31,7 @@ fn createGraph() ?*firm.ir_graph {
 }
 
 fn createField() ?*firm.ir_entity {
-    const byteType = firm.newTypePrimitive(firm.getMode(.Bu));
+    const byteType = firm.newTypePrimitive(.Bu);
 
     const arrayType = firm.newTypeArray(byteType, dataSize);
 
@@ -47,7 +47,7 @@ fn createField() ?*firm.ir_entity {
 }
 
 fn createPutCharEntity() ?*firm.ir_entity {
-    const typeInt = firm.newTypePrimitive(firm.getMode(.Is));
+    const typeInt = firm.newTypePrimitive(.Is);
 
     const methodType = firm.newTypeMethod(1, 1, false, .{ .calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set }, firm.mtp_additional_properties.no_property);
 
@@ -63,7 +63,7 @@ fn createPutCharEntity() ?*firm.ir_entity {
 }
 
 fn createGetCharEntity() ?*firm.ir_entity {
-    const typeInt = firm.newTypePrimitive(firm.getMode(.Is));
+    const typeInt = firm.newTypePrimitive(.Is);
 
     const methodType = firm.newTypeMethod(0, 1, false, .{ .calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set }, firm.mtp_additional_properties.no_property);
 
@@ -79,7 +79,7 @@ fn createGetCharEntity() ?*firm.ir_entity {
 
 fn getScanForwardEntity() ?*firm.ir_entity {
     if (scanForwardEntity == null) {
-        const typePtr = firm.newTypePrimitive(firm.getMode(.P));
+        const typePtr = firm.newTypePrimitive(.P);
         const methodType = firm.newTypeMethod(1, 1, false, .{ .calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set }, firm.mtp_additional_properties.no_property);
         firm.setMethodParamType(methodType, 0, typePtr);
         firm.setMethodResType(methodType, 0, typePtr);
@@ -92,7 +92,7 @@ fn getScanForwardEntity() ?*firm.ir_entity {
 
 fn getScanBackwardEntity() ?*firm.ir_entity {
     if (scanBackwardEntity == null) {
-        const typePtr = firm.newTypePrimitive(firm.getMode(.P));
+        const typePtr = firm.newTypePrimitive(.P);
         const methodType = firm.newTypeMethod(1, 1, false, .{ .calling_convention_special = firm.calling_convention_enum.calling_helpers.decl_set }, firm.mtp_additional_properties.no_property);
         firm.setMethodParamType(methodType, 0, typePtr);
         firm.setMethodResType(methodType, 0, typePtr);
@@ -105,9 +105,9 @@ fn getScanBackwardEntity() ?*firm.ir_entity {
 
 fn modifyPointer(amount: i32) void {
     if (amount == 0) return;
-    const pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
-    const offsetMode = firm.getReferenceOffsetMode(firm.getMode(.P));
-    const tarval = firm.newTarvalFromLong(@intCast(@abs(amount)), offsetMode);
+    const pointerValue = firm.getValue(variablePointer, .P);
+    const offsetMode = firm.getReferenceOffsetMode(.P) orelse return;
+    const tarval = firm.newTarvalFromLong(@abs(amount), .{ .p = offsetMode });
     const amountNode = firm.newConst(tarval);
 
     const newNode = if (amount > 0)
@@ -119,11 +119,11 @@ fn modifyPointer(amount: i32) void {
 }
 
 fn getEffectiveAddress(offset: i32) ?*firm.ir_node {
-    const pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
+    const pointerValue = firm.getValue(variablePointer, .P);
     if (offset == 0) return pointerValue;
 
-    const offsetMode = firm.getReferenceOffsetMode(firm.getMode(.P));
-    const tarval = firm.newTarvalFromLong(@intCast(@abs(offset)), offsetMode);
+    const offsetMode = firm.getReferenceOffsetMode(.P) orelse return null;
+    const tarval = firm.newTarvalFromLong(@abs(offset), .{ .p = offsetMode });
     const offsetNode = firm.newConst(tarval);
 
     return if (offset > 0)
@@ -136,12 +136,12 @@ fn modifyByte(amount: i32, offset: i32) void {
     if (amount == 0) return;
     const address = getEffectiveAddress(offset);
     const mem = firm.getStore();
-    const load = firm.newLoad(mem, address, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
+    const load = firm.newLoad(mem, address, .Bu, typeBu, firm.ir_cons_flags.cons_none);
 
-    const loadResult = firm.newProj(load, firm.getMode(.Bu), @intFromEnum(firm.projection_input_Load.res));
-    const loadMem = firm.newProj(load, firm.getMode(.M), @intFromEnum(firm.projection_input_Load.M));
+    const loadResult = firm.newProj(load, .Bu, firm.projection_input_Load.res);
+    const loadMem = firm.newProj(load, .M, firm.projection_input_Load.M);
 
-    const tarval = firm.newTarvalFromLong(@intCast(@abs(amount)), firm.getMode(.Bu));
+    const tarval = firm.newTarvalFromLong(@intCast(@abs(amount)), .Bu);
     const amountNode = firm.newConst(tarval);
 
     const newNode = if (amount > 0)
@@ -150,7 +150,7 @@ fn modifyByte(amount: i32, offset: i32) void {
         firm.newSub(loadResult, amountNode);
 
     const store = firm.newStore(loadMem, address, newNode, typeBu, firm.ir_cons_flags.cons_none);
-    const storeMem = firm.newProj(store, firm.getMode(.M), @intFromEnum(firm.projection_input_Store.M));
+    const storeMem = firm.newProj(store, .M, firm.projection_input_Store.M);
 
     firm.setStore(storeMem);
 }
@@ -158,11 +158,11 @@ fn modifyByte(amount: i32, offset: i32) void {
 fn setByte(value: u8, offset: i32) void {
     const address = getEffectiveAddress(offset);
     const mem = firm.getStore();
-    const tarval = firm.newTarvalFromLong(value, firm.getMode(.Bu));
+    const tarval = firm.newTarvalFromLong(value, .Bu);
     const valueNode = firm.newConst(tarval);
 
     const store = firm.newStore(mem, address, valueNode, typeBu, firm.ir_cons_flags.cons_none);
-    const storeMem = firm.newProj(store, firm.getMode(.M), @intFromEnum(firm.projection_input_Store.M));
+    const storeMem = firm.newProj(store, .M, firm.projection_input_Store.M);
 
     firm.setStore(storeMem);
 }
@@ -176,15 +176,15 @@ fn outputByte(offset: i32) void {
     const address = getEffectiveAddress(offset);
     const mem = firm.getStore();
 
-    const load = firm.newLoad(mem, address, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
-    const loadResult = firm.newProj(load, firm.getMode(.Bu), @intFromEnum(firm.projection_input_Load.res));
+    const load = firm.newLoad(mem, address, .Bu, typeBu, firm.ir_cons_flags.cons_none);
+    const loadResult = firm.newProj(load, .Bu, firm.projection_input_Load.res);
 
-    const convert = firm.newConv(loadResult, firm.getMode(.Is));
+    const convert = firm.newConv(loadResult, .Is);
     const in: [1]?*firm.ir_node = .{convert};
     const cType = firm.getEntityType(putcharEntity);
     const call = firm.newCall(mem, putchar, 1, &in, cType);
 
-    const callMem = firm.newProj(call, firm.getMode(.M), @intFromEnum(firm.projection_input_Call.M));
+    const callMem = firm.newProj(call, .M, firm.projection_input_Call.M);
 
     firm.setStore(callMem);
 }
@@ -200,16 +200,16 @@ fn inputByte(offset: i32) void {
     const ctype = firm.getEntityType(getcharEntity);
     const call = firm.newCall(mem, getchar, 0, null, ctype);
 
-    const callMem = firm.newProj(call, firm.getMode(.M), @intFromEnum(firm.projection_input_Call.M));
+    const callMem = firm.newProj(call, .M, firm.projection_input_Call.M);
 
-    const callResults = firm.newProj(call, firm.getMode(.T), @intFromEnum(firm.projection_input_Call.T_result));
-    const callResult = firm.newProj(callResults, firm.getMode(.Is), 0);
+    const callResults = firm.newProj(call, .T, firm.projection_input_Call.T_result);
+    const callResult = firm.newProj(callResults, .Is, 0);
 
     const address = getEffectiveAddress(offset);
-    const convert = firm.newConv(callResult, firm.getMode(.Bu));
+    const convert = firm.newConv(callResult, .Bu);
 
     const store = firm.newStore(callMem, address, convert, typeBu, firm.ir_cons_flags.cons_none);
-    const storeMem = firm.newProj(store, firm.getMode(.M), @intFromEnum(firm.projection_input_Store.M));
+    const storeMem = firm.newProj(store, .M, firm.projection_input_Store.M);
 
     firm.setStore(storeMem);
 }
@@ -220,15 +220,15 @@ fn multiplyAdd(src_offset: i32, dest_offset: i32, multiplier: i32) void {
     const dest_address = getEffectiveAddress(dest_offset);
     const mem = firm.getStore();
 
-    const load_src = firm.newLoad(mem, src_address, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
-    const src_val = firm.newProj(load_src, firm.getMode(.Bu), @intFromEnum(firm.projection_input_Load.res));
-    const src_mem = firm.newProj(load_src, firm.getMode(.M), @intFromEnum(firm.projection_input_Load.M));
+    const load_src = firm.newLoad(mem, src_address, .Bu, typeBu, firm.ir_cons_flags.cons_none);
+    const src_val = firm.newProj(load_src, .Bu, firm.projection_input_Load.res);
+    const src_mem = firm.newProj(load_src, .M, firm.projection_input_Load.M);
 
-    const load_dest = firm.newLoad(src_mem, dest_address, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
-    const dest_val = firm.newProj(load_dest, firm.getMode(.Bu), @intFromEnum(firm.projection_input_Load.res));
-    const dest_mem = firm.newProj(load_dest, firm.getMode(.M), @intFromEnum(firm.projection_input_Load.M));
+    const load_dest = firm.newLoad(src_mem, dest_address, .Bu, typeBu, firm.ir_cons_flags.cons_none);
+    const dest_val = firm.newProj(load_dest, .Bu, firm.projection_input_Load.res);
+    const dest_mem = firm.newProj(load_dest, .M, firm.projection_input_Load.M);
 
-    const mult_tarval = firm.newTarvalFromLong(@intCast(@abs(multiplier)), firm.getMode(.Bu));
+    const mult_tarval = firm.newTarvalFromLong(@intCast(@abs(multiplier)), .Bu);
     const mult_node = firm.newConst(mult_tarval);
 
     const prod = firm.newMul(src_val, mult_node);
@@ -238,26 +238,26 @@ fn multiplyAdd(src_offset: i32, dest_offset: i32, multiplier: i32) void {
         firm.newSub(dest_val, prod);
 
     const store = firm.newStore(dest_mem, dest_address, result, typeBu, firm.ir_cons_flags.cons_none);
-    const store_mem = firm.newProj(store, firm.getMode(.M), @intFromEnum(firm.projection_input_Store.M));
+    const store_mem = firm.newProj(store, .M, firm.projection_input_Store.M);
 
     firm.setStore(store_mem);
 }
 
 fn scanLoop(step: i32, offset: i32) void {
     modifyPointer(offset);
-    const pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
+    const pointerValue = firm.getValue(variablePointer, .P);
     const mem = firm.getStore();
 
     const entity = if (step > 0) getScanForwardEntity() else getScanBackwardEntity();
     const func_addr = firm.newAddress(entity);
     const cType = firm.getEntityType(entity);
-    
+
     const in: [1]?*firm.ir_node = .{pointerValue};
     const call = firm.newCall(mem, func_addr, 1, &in, cType);
-    
-    const callMem = firm.newProj(call, firm.getMode(.M), @intFromEnum(firm.projection_input_Call.M));
-    const callResults = firm.newProj(call, firm.getMode(.T), @intFromEnum(firm.projection_input_Call.T_result));
-    const callResult = firm.newProj(callResults, firm.getMode(.P), 0);
+
+    const callMem = firm.newProj(call, .M, firm.projection_input_Call.M);
+    const callResults = firm.newProj(call, .T, firm.projection_input_Call.T_result);
+    const callResult = firm.newProj(callResults, .P, 0);
 
     firm.setStore(callMem);
     firm.setValue(variablePointer, callResult);
@@ -265,7 +265,7 @@ fn scanLoop(step: i32, offset: i32) void {
 
 fn createReturn() void {
     const mem = firm.getStore();
-    var zero = firm.newConst(firm.newTarvalFromLong(0, firm.getMode(.Is)));
+    var zero = firm.newConst(firm.newTarvalFromLong(0, .Is));
     const returnNode = firm.newReturn(mem, 1, &zero);
 
     const endBlock = firm.getIrgEndBlock(firm.current_ir_graph);
@@ -289,20 +289,20 @@ fn parseLoopProlog() LoopFrame {
     firm.addImmblockPred(loopHeaderBlock, jmp);
     firm.setCurBlock(loopHeaderBlock);
 
-    const pointerValue = firm.getValue(variablePointer, firm.getMode(.P));
+    const pointerValue = firm.getValue(variablePointer, .P);
     const mem = firm.getStore();
-    const load = firm.newLoad(mem, pointerValue, firm.getMode(.Bu), typeBu, firm.ir_cons_flags.cons_none);
-    const loadResult = firm.newProj(load, firm.getMode(.Bu), @intFromEnum(firm.projection_input_Load.res));
-    const loadMem = firm.newProj(load, firm.getMode(.M), @intFromEnum(firm.projection_input_Load.M));
+    const load = firm.newLoad(mem, pointerValue, .Bu, typeBu, firm.ir_cons_flags.cons_none);
+    const loadResult = firm.newProj(load, .Bu, firm.projection_input_Load.res);
+    const loadMem = firm.newProj(load, .M, firm.projection_input_Load.M);
 
     firm.setStore(loadMem);
 
-    const zero = firm.newConst(firm.newTarvalFromLong(0, firm.getMode(.Bu)));
+    const zero = firm.newConst(firm.newTarvalFromLong(0, .Bu));
 
     const equal = firm.newCmp(loadResult, zero, firm.ir_relation.equal);
     const cond = firm.newCond(equal);
-    const trueProj = firm.newProj(cond, firm.getMode(.X), @intFromEnum(firm.projection_input_Cond.True));
-    const falseProj = firm.newProj(cond, firm.getMode(.X), @intFromEnum(firm.projection_input_Cond.False));
+    const trueProj = firm.newProj(cond, .X, firm.projection_input_Cond.True);
+    const falseProj = firm.newProj(cond, .X, firm.projection_input_Cond.False);
 
     const loopBodyBlock = firm.newImmblock();
     firm.addImmblockPred(loopBodyBlock, falseProj);
@@ -368,9 +368,7 @@ const Parser = struct {
                 '>', '<' => {
                     var delta: i32 = 0;
                     while (self.peek()) |cc| {
-                        if (cc == '>') delta += 1
-                        else if (cc == '<') delta -= 1
-                        else if (cc == '+' or cc == '-' or cc == '.' or cc == ',' or cc == '[' or cc == ']') break;
+                        if (cc == '>') delta += 1 else if (cc == '<') delta -= 1 else if (cc == '+' or cc == '-' or cc == '.' or cc == ',' or cc == '[' or cc == ']') break;
                         self.advance();
                     }
                     self.offset += delta;
@@ -379,9 +377,7 @@ const Parser = struct {
                     self.has_mutated = true;
                     var delta: i32 = 0;
                     while (self.peek()) |cc| {
-                        if (cc == '+') delta += 1
-                        else if (cc == '-') delta -= 1
-                        else if (cc == '>' or cc == '<' or cc == '.' or cc == ',' or cc == '[' or cc == ']') break;
+                        if (cc == '+') delta += 1 else if (cc == '-') delta -= 1 else if (cc == '>' or cc == '<' or cc == '.' or cc == ',' or cc == '[' or cc == ']') break;
                         self.advance();
                     }
                     const entry = try self.pending_changes.getOrPut(self.allocator, self.offset);
@@ -406,8 +402,7 @@ const Parser = struct {
                         self.advance();
                         while (depth > 0) {
                             const cc = self.peek() orelse break;
-                            if (cc == '[') depth += 1
-                            else if (cc == ']') depth -= 1;
+                            if (cc == '[') depth += 1 else if (cc == ']') depth -= 1;
                             self.advance();
                         }
                         continue;
@@ -432,9 +427,7 @@ const Parser = struct {
 
                         while (self.peekAt(i)) |cc| {
                             if (cc == ']') break;
-                            if (cc == '>') balanced_move += 1
-                            else if (cc == '<') balanced_move -= 1
-                            else if (cc == '+') {
+                            if (cc == '>') balanced_move += 1 else if (cc == '<') balanced_move -= 1 else if (cc == '+') {
                                 const entry = try changes.getOrPut(self.allocator, balanced_move);
                                 if (!entry.found_existing) entry.value_ptr.* = 0;
                                 entry.value_ptr.* += 1;
@@ -448,9 +441,9 @@ const Parser = struct {
                             }
                             i += 1;
                         }
-                        
+
                         const net_origin_change = if (changes.getPtr(0)) |ptr| ptr.* else 0;
-                        
+
                         if (valid and balanced_move == 0 and net_origin_change == -1 and self.peekAt(i) == ']') {
                             try self.flushChanges();
                             var it = changes.iterator();
@@ -494,7 +487,7 @@ const Parser = struct {
                 else => {
                     // Ignore comments
                     self.advance();
-                }
+                },
             }
         }
     }
@@ -517,7 +510,6 @@ fn parse(io: std.Io, allocator: std.mem.Allocator, content: []const u8) !void {
 }
 
 /// This is a port of https://github.com/libfirm/firm-bf/blob/master/main.c using firmly-zig low level API / I have modified some of it to further some opt.
-
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
     const arena = init.arena.allocator();
@@ -531,20 +523,22 @@ pub fn main(init: std.process.Init) !void {
     const output_path = if (args.len > 2) args[2] else "test.s";
 
     initializeFirm();
-    const graph = createGraph();
+    const graph = createGraph() orelse return;
     firm.setCurrentIrGraph(graph);
 
-    typeBu = firm.getTypeForMode(firm.getMode(.Bu));
+    const bu: firm.IrMode = .Bu;
+
+    typeBu = try bu.getType();
 
     const field = createField();
     const fieldStart = firm.newAddress(field);
     firm.setValue(variablePointer, fieldStart);
-    
+
     var file = try std.Io.Dir.cwd().openFile(io, source_path, .{});
     defer file.close(io);
 
     const stat = try file.stat(io);
-    var r = file.reader(io, &.{ });
+    var r = file.reader(io, &.{});
     const content = try r.interface.allocRemaining(arena, .unlimited);
     _ = stat;
 
@@ -553,43 +547,41 @@ pub fn main(init: std.process.Init) !void {
     try parse(io, arena, content);
     createReturn();
 
+    firm.irgFinalizeCons(graph);
+    firm.irgAssertVerify(graph);
+    graph.doLoopInversion();
+    var j: usize = 0;
+    while (j < 10) : (j += 1) {
+        graph.optimizeGraphDf();
+        graph.optimizeReassociation();
+        graph.scalarReplacementOpt();
+        graph.optimizeLoadStore();
+        graph.convOpt();
+        graph.combo();
+        graph.optJumpthreading();
 
-firm.irgFinalizeCons(graph);
-firm.irgAssertVerify(graph);
-firm.doLoopInversion(graph);
+        graph.placeCode();
 
-var j: usize = 0;
-while (j < 10) : (j += 1) {
-    firm.optimizeGraphDf(graph);
-    firm.optimizeReassociation(graph);
-    firm.scalarReplacementOpt(graph);
-    firm.optimizeLoadStore(graph);
-    firm.convOpt(graph);
-    firm.combo(graph);
-    firm.optJumpthreading(graph);
+        graph.constructConfirms();
+        graph.optimizeGraphDf();
+        graph.removeConfirms();
+        graph.optimizeCf();
 
-    firm.placeCode(graph);
+        graph.removeUnreachableCode();
+        graph.deadNodeElimination();
+    }
 
-    firm.constructConfirms(graph);
-    firm.optimizeGraphDf(graph);
-    firm.removeConfirms(graph);
-    firm.optimizeCf(graph);
+    graph.constructCfBackedges();
+    graph.assureLoopinfo();
 
-    firm.removeUnreachableCode(graph);
-    firm.deadNodeElimination(graph);
-}
+    graph.unrollLoops(16, 256);
 
-firm.constructCfBackedges(graph);
-firm.assureLoopinfo(graph);
+    graph.optimizeGraphDf();
+    graph.combo();
+    graph.optimizeCf();
+    graph.removeUnreachableCode();
 
-firm.unrollLoops(graph, 16, 256); 
-
-firm.optimizeGraphDf(graph);
-firm.combo(graph);
-firm.optimizeCf(graph);
-firm.removeUnreachableCode(graph);
-
-firm.placeCode(graph);
+    graph.placeCode();
     const out_path_z = try arena.dupeZ(u8, output_path);
     defer arena.free(out_path_z);
 

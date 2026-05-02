@@ -29,8 +29,7 @@ export fn bf_scan_forward(ptr: [*]u8) [*]u8 {
             : [ptr] "{rdi}" (ptr),
               [zero] "{al}" (@as(u8, 0)),
               [count] "{rcx}" (@as(usize, 0xFFFFFFFFFFFFFFFF)),
-            : .{ .rcx = true, .memory = true, .cc = true }
-        );
+            : .{ .rcx = true, .memory = true, .cc = true });
     } else {
         var p = ptr;
         while (p[0] != 0) : (p += 1) {}
@@ -49,8 +48,7 @@ export fn bf_scan_backward(ptr: [*]u8) [*]u8 {
             : [ptr] "{rdi}" (ptr),
               [zero] "{al}" (@as(u8, 0)),
               [count] "{rcx}" (@as(usize, 0xFFFFFFFFFFFFFFFF)),
-            : .{ .rcx = true, .memory = true, .cc = true }
-        );
+            : .{ .rcx = true, .memory = true, .cc = true });
     } else {
         var p = ptr;
         while (p[0] != 0) : (p -= 1) {}
@@ -63,8 +61,8 @@ extern fn bf_main() i32;
 pub fn main(init: std.process.Init) !void {
     global_io = init.io;
     stdout_writer = std.Io.File.stdout().writer(global_io, &stdout_buffer);
-    
+
     _ = bf_main();
-    
+
     stdout_writer.interface.flush() catch unreachable;
 }

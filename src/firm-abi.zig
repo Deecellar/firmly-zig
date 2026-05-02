@@ -3,17 +3,170 @@ pub const ir_visited_t = u64;
 pub const ir_label_t = u64;
 pub const dbg_info = opaque {};
 pub const type_dbg_info = opaque {};
-pub const ir_node = opaque {};
+pub const ir_node = opaque {
+    pub fn getArity(self: *const ir_node) i32 {
+        return low_level.get_irn_arity(self);
+    }
+    pub fn getIn(self: *const ir_node, n: i32) ?*ir_node {
+        return low_level.get_irn_n(self, n);
+    }
+    pub fn setIn(self: *ir_node, n: i32, in: ?*ir_node) void {
+        return low_level.set_irn_n(self, n, in);
+    }
+    pub fn getMode(self: *const ir_node) ?*ir_mode {
+        return low_level.get_irn_mode(self);
+    }
+    pub fn getOp(self: *const ir_node) ?*ir_op {
+        return low_level.get_irn_op(self);
+    }
+    pub fn getBlock(self: *const ir_node) ?*ir_node {
+        return low_level.get_nodes_block(self);
+    }
+    pub fn setBlock(self: *ir_node, block: ?*ir_node) void {
+        return low_level.set_nodes_block(self, block);
+    }
+    pub fn getIrg(self: *const ir_node) ?*ir_graph {
+        return low_level.get_irn_irg(self);
+    }
+    pub fn add(self: *ir_node, other: *ir_node) ?*ir_node {
+        return low_level.new_Add(self, other);
+    }
+    pub fn sub(self: *ir_node, other: *ir_node) ?*ir_node {
+        return low_level.new_Sub(self, other);
+    }
+    pub fn mul(self: *ir_node, other: *ir_node) ?*ir_node {
+        return low_level.new_Mul(self, other);
+    }
+    pub fn conv(self: *ir_node, mode: IrMode) ?*ir_node {
+        return low_level.new_Conv(self, resolveMode(mode));
+    }
+};
 pub const ir_op = opaque {};
-pub const ir_mode = opaque {};
+pub const ir_mode = opaque {
+    pub fn getName(self: *const ir_mode) []const u8 {
+        const ptr = low_level.get_mode_name(self);
+        return std.mem.span(ptr);
+    }
+    pub fn getSizeBits(self: *const ir_mode) u32 {
+        return low_level.get_mode_size_bits(self);
+    }
+    pub fn getSizeBytes(self: *const ir_mode) u32 {
+        return low_level.get_mode_size_bytes(self);
+    }
+    pub fn getType(self: *const ir_mode) ?*ir_type {
+        return low_level.get_type_for_mode(self);
+    }
+};
 pub const ir_edge_t = opaque {};
 pub const ir_heights_t = opaque {};
 pub const ir_tarval = opaque {};
-pub const ir_type = opaque {};
-pub const ir_graph = opaque {};
+pub const ir_type = opaque {
+    pub fn getSize(self: *const ir_type) u32 {
+        return low_level.get_type_size(self);
+    }
+    pub fn getAlignment(self: *const ir_type) u32 {
+        return low_level.get_type_alignment(self);
+    }
+    pub fn getMode(self: *const ir_type) ?*ir_mode {
+        return low_level.get_type_mode(self);
+    }
+};
+pub const ir_graph = opaque {
+    pub fn reserveResources(self: *ir_graph, resources: ir_resources_t) void {
+        low_level.ir_reserve_resources(self, resources);
+    }
+    pub fn freeResources(self: *ir_graph, resources: ir_resources_t) void {
+        low_level.ir_free_resources(self, resources);
+    }
+    pub fn resourcesReserved(self: *const ir_graph) ir_resources_t {
+        return low_level.ir_resources_reserved(self);
+    }
+    pub fn optimizeCf(self: *ir_graph) void {
+        low_level.optimize_cf(self);
+    }
+    pub fn placeCode(self: *ir_graph) void {
+        low_level.place_code(self);
+    }
+    pub fn combo(self: *ir_graph) void {
+        low_level.combo(self);
+    }
+    pub fn optimizeGraphDf(self: *ir_graph) void {
+        low_level.optimize_graph_df(self);
+    }
+    pub fn optimizeLoadStore(self: *ir_graph) void {
+        low_level.optimize_load_store(self);
+    }
+    pub fn constructCfBackedges(self: *ir_graph) void {
+        low_level.construct_cf_backedges(self);
+    }
+    pub fn assureLoopinfo(self: *ir_graph) void {
+        low_level.assure_loopinfo(self);
+    }
+    pub fn doLoopInversion(self: *ir_graph) void {
+        low_level.do_loop_inversion(self);
+    }
+    pub fn unrollLoops(self: *ir_graph, factor: u32, maxsize: u32) void {
+        low_level.unroll_loops(self, factor, maxsize);
+    }
+    pub fn optimizeReassociation(self: *ir_graph) void {
+        low_level.optimize_reassociation(self);
+    }
+    pub fn scalarReplacementOpt(self: *ir_graph) void {
+        low_level.scalar_replacement_opt(self);
+    }
+    pub fn convOpt(self: *ir_graph) void {
+        low_level.conv_opt(self);
+    }
+    pub fn optJumpthreading(self: *ir_graph) void {
+        low_level.opt_jumpthreading(self);
+    }
+    pub fn constructConfirms(self: *ir_graph) void {
+        low_level.construct_confirms(self);
+    }
+    pub fn removeConfirms(self: *ir_graph) void {
+        low_level.remove_confirms(self);
+    }
+    pub fn removeUnreachableCode(self: *ir_graph) void {
+        low_level.remove_unreachable_code(self);
+    }
+    pub fn deadNodeElimination(self: *ir_graph) void {
+        low_level.dead_node_elimination(self);
+    }
+};
 pub const ir_prog = opaque {};
 pub const ir_loop = opaque {};
-pub const ir_entity = opaque {};
+pub const ir_entity = opaque {
+    pub fn getName(self: *const ir_entity) []const u8 {
+        return std.mem.span(low_level.get_entity_name(self));
+    }
+    pub fn getType(self: *const ir_entity) ?*ir_type {
+        return low_level.get_entity_type(self);
+    }
+    pub fn getOwner(self: *const ir_entity) ?*ir_type {
+        return low_level.get_entity_owner(self);
+    }
+};
+
+pub const ResourceGuard = struct {
+    irg: ?*ir_graph,
+    reserved: ir_resources_t,
+
+    pub fn init(irg: ?*ir_graph, resources: ir_resources_t) ResourceGuard {
+        const current = irResourcesReserved(irg);
+        const needed_mask = @intFromEnum(resources) & ~@intFromEnum(current);
+        const to_reserve = @as(ir_resources_t, @enumFromInt(needed_mask));
+        if (needed_mask != 0) {
+            irReserveResources(irg, to_reserve);
+        }
+        return .{ .irg = irg, .reserved = to_reserve };
+    }
+
+    pub fn deinit(self: ResourceGuard) void {
+        if (@intFromEnum(self.reserved) != 0) {
+            irFreeResources(self.irg, self.reserved);
+        }
+    }
+};
 pub const ir_cdep = opaque {};
 pub const ir_initializer_t = opaque {};
 pub const ir_machine_triple_t = opaque {};
@@ -600,6 +753,13 @@ pub const ir_resources_t = enum(u32) {
     irn_link = 8,
     loop_link = 16,
     phi_list = 32,
+
+    pub fn join(self: ir_resources_t, other: ir_resources_t) ir_resources_t {
+        return @as(ir_resources_t, @enumFromInt(@intFromEnum(self) | @intFromEnum(other)));
+    }
+    pub fn contains(self: ir_resources_t, other: ir_resources_t) bool {
+        return (@intFromEnum(self) & @intFromEnum(other)) == @intFromEnum(other);
+    }
 };
 
 pub const ir_graph_constraints_t = enum(u32) {
@@ -629,6 +789,13 @@ pub const ir_graph_properties_t = enum(u32) {
     many_returns = 4096,
     control_flow = 1273,
     all = 8191,
+
+    pub fn join(self: ir_graph_properties_t, other: ir_graph_properties_t) ir_graph_properties_t {
+        return @as(ir_graph_properties_t, @enumFromInt(@intFromEnum(self) | @intFromEnum(other)));
+    }
+    pub fn contains(self: ir_graph_properties_t, other: ir_graph_properties_t) bool {
+        return (@intFromEnum(self) & @intFromEnum(other)) == @intFromEnum(other);
+    }
 };
 
 pub const ir_alias_relation = enum(u32) { no_alias, may_alias, sure_alias };
@@ -830,7 +997,7 @@ pub extern var op_Tuple: ?*ir_op;
 pub extern var op_Unknown: ?*ir_op;
 pub extern var current_ir_graph: ?*ir_graph;
 
-pub const IrMode = enum {
+pub const IrMode = union(enum) {
     M,
     Is,
     Iu,
@@ -848,7 +1015,48 @@ pub const IrMode = enum {
     X,
     ANY,
     BAD,
+    p: *ir_mode,
+
+    pub fn toPointer(self: IrMode) ?*ir_mode {
+        return switch (self) {
+            .M => mode_M,
+            .Is => mode_Is,
+            .Iu => mode_Iu,
+            .F => mode_F,
+            .D => mode_D,
+            .P => mode_P,
+            .Hs => mode_Hs,
+            .Hu => mode_Hu,
+            .Ls => mode_Ls,
+            .Lu => mode_Lu,
+            .Bs => mode_Bs,
+            .Bu => mode_Bu,
+            .T => mode_T,
+            .BB => mode_BB,
+            .X => mode_X,
+            .ANY => mode_ANY,
+            .BAD => mode_BAD,
+            .p => |ptr| ptr,
+        };
+    }
+    pub fn getType(self: IrMode) !*ir_type {
+        const mode = self.toPointer() orelse return error.UnknownMode;
+        return mode.getType() orelse return error.UnknownType;
+    }
 };
+
+fn resolveMode(mode: IrMode) ?*ir_mode {
+    return mode.toPointer();
+}
+
+fn resolveInt(val: anytype) u32 {
+    const T = @TypeOf(val);
+    switch (@typeInfo(T)) {
+        .int, .comptime_int => return @intCast(val),
+        .@"enum", .enum_literal => return @intFromEnum(val),
+        else => @compileError("Expected integer or enum, found " ++ @typeName(T)),
+    }
+}
 pub fn getMode(mode: IrMode) ?*ir_mode {
     switch (mode) {
         .M => return mode_M,
@@ -3066,8 +3274,8 @@ pub fn getPointerPointsToType(pointer: ?*const ir_type) ?*ir_type {
 pub fn isPointerType(pointer: ?*const ir_type) bool {
     return low_level.is_Pointer_type(pointer) == 1;
 }
-pub fn newTypePrimitive(mode: ?*ir_mode) ?*ir_type {
-    return low_level.new_type_primitive(mode);
+pub fn newTypePrimitive(mode: IrMode) ?*ir_type {
+    return low_level.new_type_primitive(resolveMode(mode));
 }
 pub fn isPrimitiveType(primitive: ?*const ir_type) bool {
     return low_level.is_Primitive_type(primitive) == 1;
@@ -3300,11 +3508,11 @@ pub fn modeOverflowOnUnaryMinus(mode: ?*const ir_mode) i32 {
 pub fn modeWrapAround(mode: ?*const ir_mode) i32 {
     return low_level.mode_wrap_around(mode);
 }
-pub fn getReferenceOffsetMode(mode: ?*const ir_mode) ?*ir_mode {
-    return low_level.get_reference_offset_mode(mode);
+pub fn getReferenceOffsetMode(mode: IrMode) ?*ir_mode {
+    return low_level.get_reference_offset_mode(resolveMode(mode));
 }
-pub fn setReferenceOffsetMode(ref_mode: ?*ir_mode, int_mode: ?*ir_mode) void {
-    return low_level.set_reference_offset_mode(ref_mode, int_mode);
+pub fn setReferenceOffsetMode(ref_mode: IrMode, int_mode: IrMode) void {
+    return low_level.set_reference_offset_mode(resolveMode(ref_mode), resolveMode(int_mode));
 }
 pub fn getModeMantissaSize(mode: ?*const ir_mode) u32 {
     return low_level.get_mode_mantissa_size(mode);
@@ -3858,17 +4066,17 @@ pub fn setAddressEntity(node: ?*ir_node, entity: ?*ir_entity) void {
 pub fn getOpAddress() ?*ir_op {
     return low_level.get_op_Address();
 }
-pub fn newRdAlign(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_rd_Align(dbgi, irg, mode, @"type");
+pub fn newRdAlign(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_rd_Align(dbgi, irg, resolveMode(mode), @"type");
 }
-pub fn newRAlign(irg: ?*ir_graph, mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_r_Align(irg, mode, @"type");
+pub fn newRAlign(irg: ?*ir_graph, mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_r_Align(irg, resolveMode(mode), @"type");
 }
-pub fn newDAlign(dbgi: ?*dbg_info, mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_d_Align(dbgi, mode, @"type");
+pub fn newDAlign(dbgi: ?*dbg_info, mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_d_Align(dbgi, resolveMode(mode), @"type");
 }
-pub fn newAlign(mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_Align(mode, @"type");
+pub fn newAlign(mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_Align(resolveMode(mode), @"type");
 }
 pub fn isAlign(node: ?*const ir_node) bool {
     return low_level.is_Align(node) == 1;
@@ -4002,17 +4210,17 @@ pub fn setAndRight(node: ?*ir_node, right: ?*ir_node) void {
 pub fn getOpAnd() ?*ir_op {
     return low_level.get_op_And();
 }
-pub fn newRdBad(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_rd_Bad(dbgi, irg, mode);
+pub fn newRdBad(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: IrMode) ?*ir_node {
+    return low_level.new_rd_Bad(dbgi, irg, resolveMode(mode));
 }
-pub fn newRBad(irg: ?*ir_graph, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_r_Bad(irg, mode);
+pub fn newRBad(irg: ?*ir_graph, mode: IrMode) ?*ir_node {
+    return low_level.new_r_Bad(irg, resolveMode(mode));
 }
-pub fn newDBad(dbgi: ?*dbg_info, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_d_Bad(dbgi, mode);
+pub fn newDBad(dbgi: ?*dbg_info, mode: IrMode) ?*ir_node {
+    return low_level.new_d_Bad(dbgi, resolveMode(mode));
 }
-pub fn newBad(mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_Bad(mode);
+pub fn newBad(mode: IrMode) ?*ir_node {
+    return low_level.new_Bad(resolveMode(mode));
 }
 pub fn isBad(node: ?*const ir_node) bool {
     return low_level.is_Bad(node) == 1;
@@ -4020,17 +4228,17 @@ pub fn isBad(node: ?*const ir_node) bool {
 pub fn getOpBad() ?*ir_op {
     return low_level.get_op_Bad();
 }
-pub fn newRdBitcast(dbgi: ?*dbg_info, block: ?*ir_node, irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_rd_Bitcast(dbgi, block, irn_op, mode);
+pub fn newRdBitcast(dbgi: ?*dbg_info, block: ?*ir_node, irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_rd_Bitcast(dbgi, block, irn_op, resolveMode(mode));
 }
-pub fn newRBitcast(block: ?*ir_node, irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_r_Bitcast(block, irn_op, mode);
+pub fn newRBitcast(block: ?*ir_node, irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_r_Bitcast(block, irn_op, resolveMode(mode));
 }
-pub fn newDBitcast(dbgi: ?*dbg_info, irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_d_Bitcast(dbgi, irn_op, mode);
+pub fn newDBitcast(dbgi: ?*dbg_info, irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_d_Bitcast(dbgi, irn_op, resolveMode(mode));
 }
-pub fn newBitcast(irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_Bitcast(irn_op, mode);
+pub fn newBitcast(irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_Bitcast(irn_op, resolveMode(mode));
 }
 pub fn isBitcast(node: ?*const ir_node) bool {
     return low_level.is_Bitcast(node) == 1;
@@ -4302,17 +4510,17 @@ pub fn setConstTarval(node: ?*ir_node, tarval: ?*ir_tarval) void {
 pub fn getOpConst() ?*ir_op {
     return low_level.get_op_Const();
 }
-pub fn newRdConv(dbgi: ?*dbg_info, block: ?*ir_node, irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_rd_Conv(dbgi, block, irn_op, mode);
+pub fn newRdConv(dbgi: ?*dbg_info, block: ?*ir_node, irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_rd_Conv(dbgi, block, irn_op, resolveMode(mode));
 }
-pub fn newRConv(block: ?*ir_node, irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_r_Conv(block, irn_op, mode);
+pub fn newRConv(block: ?*ir_node, irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_r_Conv(block, irn_op, resolveMode(mode));
 }
-pub fn newDConv(dbgi: ?*dbg_info, irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_d_Conv(dbgi, irn_op, mode);
+pub fn newDConv(dbgi: ?*dbg_info, irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_d_Conv(dbgi, irn_op, resolveMode(mode));
 }
-pub fn newConv(irn_op: ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_Conv(irn_op, mode);
+pub fn newConv(irn_op: ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_Conv(irn_op, resolveMode(mode));
 }
 pub fn isConv(node: ?*const ir_node) bool {
     return low_level.is_Conv(node) == 1;
@@ -4416,8 +4624,8 @@ pub fn setDivRight(node: ?*ir_node, right: ?*ir_node) void {
 pub fn getDivResmode(node: ?*const ir_node) ?*ir_mode {
     return low_level.get_Div_resmode(node);
 }
-pub fn setDivResmode(node: ?*ir_node, resmode: ?*ir_mode) void {
-    return low_level.set_Div_resmode(node, resmode);
+pub fn setDivResmode(node: ?*ir_node, resmode: IrMode) void {
+    return low_level.set_Div_resmode(node, resolveMode(resmode));
 }
 pub fn getDivNoRemainder(node: ?*const ir_node) i32 {
     return low_level.get_Div_no_remainder(node);
@@ -4428,17 +4636,17 @@ pub fn setDivNoRemainder(node: ?*ir_node, no_remainder: i32) void {
 pub fn getOpDiv() ?*ir_op {
     return low_level.get_op_Div();
 }
-pub fn newRdDummy(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_rd_Dummy(dbgi, irg, mode);
+pub fn newRdDummy(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: IrMode) ?*ir_node {
+    return low_level.new_rd_Dummy(dbgi, irg, resolveMode(mode));
 }
-pub fn newRDummy(irg: ?*ir_graph, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_r_Dummy(irg, mode);
+pub fn newRDummy(irg: ?*ir_graph, mode: IrMode) ?*ir_node {
+    return low_level.new_r_Dummy(irg, resolveMode(mode));
 }
-pub fn newDDummy(dbgi: ?*dbg_info, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_d_Dummy(dbgi, mode);
+pub fn newDDummy(dbgi: ?*dbg_info, mode: IrMode) ?*ir_node {
+    return low_level.new_d_Dummy(dbgi, resolveMode(mode));
 }
-pub fn newDummy(mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_Dummy(mode);
+pub fn newDummy(mode: IrMode) ?*ir_node {
+    return low_level.new_Dummy(resolveMode(mode));
 }
 pub fn isDummy(node: ?*const ir_node) bool {
     return low_level.is_Dummy(node) == 1;
@@ -4590,17 +4798,17 @@ pub fn isJmp(node: ?*const ir_node) bool {
 pub fn getOpJmp() ?*ir_op {
     return low_level.get_op_Jmp();
 }
-pub fn newRdLoad(dbgi: ?*dbg_info, block: ?*ir_node, irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: ?*ir_mode, @"type": ?*ir_type, flags: u32) ?*ir_node {
-    return low_level.new_rd_Load(dbgi, block, irn_mem, irn_ptr, mode, @"type", flags);
+pub fn newRdLoad(dbgi: ?*dbg_info, block: ?*ir_node, irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: IrMode, @"type": ?*ir_type, flags: u32) ?*ir_node {
+    return low_level.new_rd_Load(dbgi, block, irn_mem, irn_ptr, resolveMode(mode), @"type", flags);
 }
-pub fn newRLoad(block: ?*ir_node, irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: ?*ir_mode, @"type": ?*ir_type, flags: u32) ?*ir_node {
-    return low_level.new_r_Load(block, irn_mem, irn_ptr, mode, @"type", flags);
+pub fn newRLoad(block: ?*ir_node, irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: IrMode, @"type": ?*ir_type, flags: u32) ?*ir_node {
+    return low_level.new_r_Load(block, irn_mem, irn_ptr, resolveMode(mode), @"type", flags);
 }
-pub fn newDLoad(dbgi: ?*dbg_info, irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: ?*ir_mode, @"type": ?*ir_type, flags: u32) ?*ir_node {
-    return low_level.new_d_Load(dbgi, irn_mem, irn_ptr, mode, @"type", flags);
+pub fn newDLoad(dbgi: ?*dbg_info, irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: IrMode, @"type": ?*ir_type, flags: u32) ?*ir_node {
+    return low_level.new_d_Load(dbgi, irn_mem, irn_ptr, resolveMode(mode), @"type", flags);
 }
-pub fn newLoad(irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: ?*ir_mode, @"type": ?*ir_type, flags: ir_cons_flags) ?*ir_node {
-    return low_level.new_Load(irn_mem, irn_ptr, mode, @"type", flags);
+pub fn newLoad(irn_mem: ?*ir_node, irn_ptr: ?*ir_node, mode: IrMode, @"type": ?*ir_type, flags: ir_cons_flags) ?*ir_node {
+    return low_level.new_Load(irn_mem, irn_ptr, resolveMode(mode), @"type", flags);
 }
 pub fn isLoad(node: ?*const ir_node) bool {
     return low_level.is_Load(node) == 1;
@@ -4620,8 +4828,8 @@ pub fn setLoadPtr(node: ?*ir_node, ptr: ?*ir_node) void {
 pub fn getLoadMode(node: ?*const ir_node) ?*ir_mode {
     return low_level.get_Load_mode(node);
 }
-pub fn setLoadMode(node: ?*ir_node, mode: ?*ir_mode) void {
-    return low_level.set_Load_mode(node, mode);
+pub fn setLoadMode(node: ?*ir_node, mode: IrMode) void {
+    return low_level.set_Load_mode(node, resolveMode(mode));
 }
 pub fn getLoadType(node: ?*const ir_node) ?*ir_type {
     return low_level.get_Load_type(node);
@@ -4734,8 +4942,8 @@ pub fn setModRight(node: ?*ir_node, right: ?*ir_node) void {
 pub fn getModResmode(node: ?*const ir_node) ?*ir_mode {
     return low_level.get_Mod_resmode(node);
 }
-pub fn setModResmode(node: ?*ir_node, resmode: ?*ir_mode) void {
-    return low_level.set_Mod_resmode(node, resmode);
+pub fn setModResmode(node: ?*ir_node, resmode: IrMode) void {
+    return low_level.set_Mod_resmode(node, resolveMode(resmode));
 }
 pub fn getOpMod() ?*ir_op {
     return low_level.get_op_Mod();
@@ -4878,17 +5086,17 @@ pub fn setNotOp(node: ?*ir_node, op: ?*ir_node) void {
 pub fn getOpNot() ?*ir_op {
     return low_level.get_op_Not();
 }
-pub fn newRdOffset(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode, entity: ?*ir_entity) ?*ir_node {
-    return low_level.new_rd_Offset(dbgi, irg, mode, entity);
+pub fn newRdOffset(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: IrMode, entity: ?*ir_entity) ?*ir_node {
+    return low_level.new_rd_Offset(dbgi, irg, resolveMode(mode), entity);
 }
-pub fn newROffset(irg: ?*ir_graph, mode: ?*ir_mode, entity: ?*ir_entity) ?*ir_node {
-    return low_level.new_r_Offset(irg, mode, entity);
+pub fn newROffset(irg: ?*ir_graph, mode: IrMode, entity: ?*ir_entity) ?*ir_node {
+    return low_level.new_r_Offset(irg, resolveMode(mode), entity);
 }
-pub fn newDOffset(dbgi: ?*dbg_info, mode: ?*ir_mode, entity: ?*ir_entity) ?*ir_node {
-    return low_level.new_d_Offset(dbgi, mode, entity);
+pub fn newDOffset(dbgi: ?*dbg_info, mode: IrMode, entity: ?*ir_entity) ?*ir_node {
+    return low_level.new_d_Offset(dbgi, resolveMode(mode), entity);
 }
-pub fn newOffset(mode: ?*ir_mode, entity: ?*ir_entity) ?*ir_node {
-    return low_level.new_Offset(mode, entity);
+pub fn newOffset(mode: IrMode, entity: ?*ir_entity) ?*ir_node {
+    return low_level.new_Offset(resolveMode(mode), entity);
 }
 pub fn isOffset(node: ?*const ir_node) bool {
     return low_level.is_Offset(node) == 1;
@@ -4932,17 +5140,17 @@ pub fn setOrRight(node: ?*ir_node, right: ?*ir_node) void {
 pub fn getOpOr() ?*ir_op {
     return low_level.get_op_Or();
 }
-pub fn newRdPhi(dbgi: ?*dbg_info, block: ?*ir_node, arity: i32, in: [*]const ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_rd_Phi(dbgi, block, arity, in, mode);
+pub fn newRdPhi(dbgi: ?*dbg_info, block: ?*ir_node, arity: i32, in: [*]const ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_rd_Phi(dbgi, block, arity, in, resolveMode(mode));
 }
-pub fn newRPhi(block: ?*ir_node, arity: i32, in: [*]const ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_r_Phi(block, arity, in, mode);
+pub fn newRPhi(block: ?*ir_node, arity: i32, in: [*]const ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_r_Phi(block, arity, in, resolveMode(mode));
 }
-pub fn newDPhi(dbgi: ?*dbg_info, arity: i32, in: [*]const ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_d_Phi(dbgi, arity, in, mode);
+pub fn newDPhi(dbgi: ?*dbg_info, arity: i32, in: [*]const ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_d_Phi(dbgi, arity, in, resolveMode(mode));
 }
-pub fn newPhi(arity: i32, in: [*]const ?*ir_node, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_Phi(arity, in, mode);
+pub fn newPhi(arity: i32, in: [*]const ?*ir_node, mode: IrMode) ?*ir_node {
+    return low_level.new_Phi(arity, in, resolveMode(mode));
 }
 pub fn isPhi(node: ?*const ir_node) bool {
     return low_level.is_Phi(node) == 1;
@@ -4992,17 +5200,17 @@ pub fn setPinOp(node: ?*ir_node, op: ?*ir_node) void {
 pub fn getOpPin() ?*ir_op {
     return low_level.get_op_Pin();
 }
-pub fn newRdProj(dbgi: ?*dbg_info, irn_pred: ?*ir_node, mode: ?*ir_mode, num: u32) ?*ir_node {
-    return low_level.new_rd_Proj(dbgi, irn_pred, mode, num);
+pub fn newRdProj(dbgi: ?*dbg_info, irn_pred: ?*ir_node, mode: IrMode, num: anytype) ?*ir_node {
+    return low_level.new_rd_Proj(dbgi, irn_pred, resolveMode(mode), resolveInt(num));
 }
-pub fn newRProj(irn_pred: ?*ir_node, mode: ?*ir_mode, num: u32) ?*ir_node {
-    return low_level.new_r_Proj(irn_pred, mode, num);
+pub fn newRProj(irn_pred: ?*ir_node, mode: IrMode, num: anytype) ?*ir_node {
+    return low_level.new_r_Proj(irn_pred, resolveMode(mode), resolveInt(num));
 }
-pub fn newDProj(dbgi: ?*dbg_info, irn_pred: ?*ir_node, mode: ?*ir_mode, num: u32) ?*ir_node {
-    return low_level.new_d_Proj(dbgi, irn_pred, mode, num);
+pub fn newDProj(dbgi: ?*dbg_info, irn_pred: ?*ir_node, mode: IrMode, num: anytype) ?*ir_node {
+    return low_level.new_d_Proj(dbgi, irn_pred, resolveMode(mode), resolveInt(num));
 }
-pub fn newProj(irn_pred: ?*ir_node, mode: ?*ir_mode, num: u32) ?*ir_node {
-    return low_level.new_Proj(irn_pred, mode, num);
+pub fn newProj(irn_pred: ?*ir_node, mode: IrMode, num: anytype) ?*ir_node {
+    return low_level.new_Proj(irn_pred, resolveMode(mode), resolveInt(num));
 }
 pub fn isProj(node: ?*const ir_node) bool {
     return low_level.is_Proj(node) == 1;
@@ -5238,17 +5446,17 @@ pub fn setShrsRight(node: ?*ir_node, right: ?*ir_node) void {
 pub fn getOpShrs() ?*ir_op {
     return low_level.get_op_Shrs();
 }
-pub fn newRdSize(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_rd_Size(dbgi, irg, mode, @"type");
+pub fn newRdSize(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_rd_Size(dbgi, irg, resolveMode(mode), @"type");
 }
-pub fn newRSize(irg: ?*ir_graph, mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_r_Size(irg, mode, @"type");
+pub fn newRSize(irg: ?*ir_graph, mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_r_Size(irg, resolveMode(mode), @"type");
 }
-pub fn newDSize(dbgi: ?*dbg_info, mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_d_Size(dbgi, mode, @"type");
+pub fn newDSize(dbgi: ?*dbg_info, mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_d_Size(dbgi, resolveMode(mode), @"type");
 }
-pub fn newSize(mode: ?*ir_mode, @"type": ?*ir_type) ?*ir_node {
-    return low_level.new_Size(mode, @"type");
+pub fn newSize(mode: IrMode, @"type": ?*ir_type) ?*ir_node {
+    return low_level.new_Size(resolveMode(mode), @"type");
 }
 pub fn isSize(node: ?*const ir_node) bool {
     return low_level.is_Size(node) == 1;
@@ -5460,17 +5668,17 @@ pub fn getTuplePredArr(node: ?*ir_node) [*]?*ir_node {
 pub fn getOpTuple() ?*ir_op {
     return low_level.get_op_Tuple();
 }
-pub fn newRdUnknown(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_rd_Unknown(dbgi, irg, mode);
+pub fn newRdUnknown(dbgi: ?*dbg_info, irg: ?*ir_graph, mode: IrMode) ?*ir_node {
+    return low_level.new_rd_Unknown(dbgi, irg, resolveMode(mode));
 }
-pub fn newRUnknown(irg: ?*ir_graph, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_r_Unknown(irg, mode);
+pub fn newRUnknown(irg: ?*ir_graph, mode: IrMode) ?*ir_node {
+    return low_level.new_r_Unknown(irg, resolveMode(mode));
 }
-pub fn newDUnknown(dbgi: ?*dbg_info, mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_d_Unknown(dbgi, mode);
+pub fn newDUnknown(dbgi: ?*dbg_info, mode: IrMode) ?*ir_node {
+    return low_level.new_d_Unknown(dbgi, resolveMode(mode));
 }
-pub fn newUnknown(mode: ?*ir_mode) ?*ir_node {
-    return low_level.new_Unknown(mode);
+pub fn newUnknown(mode: IrMode) ?*ir_node {
+    return low_level.new_Unknown(resolveMode(mode));
 }
 pub fn isUnknown(node: ?*const ir_node) bool {
     return low_level.is_Unknown(node) == 1;
@@ -5514,8 +5722,8 @@ pub fn setIrnN(node: ?*ir_node, n: i32, in: ?*ir_node) void {
 pub fn addIrnN(node: ?*ir_node, in: ?*ir_node) i32 {
     return low_level.add_irn_n(node, in);
 }
-pub fn setIrnMode(node: ?*ir_node, mode: ?*ir_mode) void {
-    return low_level.set_irn_mode(node, mode);
+pub fn setIrnMode(node: ?*ir_node, mode: IrMode) void {
+    return low_level.set_irn_mode(node, resolveMode(mode));
 }
 pub fn getIrnMode(node: ?*const ir_node) ?*ir_mode {
     return low_level.get_irn_mode(node);
@@ -5565,8 +5773,8 @@ pub fn getIrnPinned(node: ?*const ir_node) i32 {
 pub fn setIrnPinned(node: ?*ir_node, pinned: i32) void {
     return low_level.set_irn_pinned(node, pinned);
 }
-pub fn newIrNode(db: ?*dbg_info, irg: ?*ir_graph, block: ?*ir_node, op: ?*ir_op, mode: ?*ir_mode, arity: i32, in: [*]const ?*ir_node) ?*ir_node {
-    return low_level.new_ir_node(db, irg, block, op, mode, arity, in);
+pub fn newIrNode(db: ?*dbg_info, irg: ?*ir_graph, block: ?*ir_node, op: ?*ir_op, mode: IrMode, arity: i32, in: [*]const ?*ir_node) ?*ir_node {
+    return low_level.new_ir_node(db, irg, block, op, resolveMode(mode), arity, in);
 }
 pub fn exactCopy(node: ?*const ir_node) ?*ir_node {
     return low_level.exact_copy(node);
@@ -5805,17 +6013,17 @@ pub fn irSwitchTableGetPn(table: ?*const ir_switch_table, entry: usize) u32 {
 pub fn irSwitchTableDuplicate(irg: ?*ir_graph, table: ?*const ir_switch_table) ?*ir_switch_table {
     return low_level.ir_switch_table_duplicate(irg, table);
 }
-pub fn newRdConstLong(db: ?*dbg_info, irg: ?*ir_graph, mode: ?*ir_mode, value: i64) ?*ir_node {
-    return low_level.new_rd_Const_long(db, irg, mode, value);
+pub fn newRdConstLong(db: ?*dbg_info, irg: ?*ir_graph, mode: IrMode, value: i64) ?*ir_node {
+    return low_level.new_rd_Const_long(db, irg, resolveMode(mode), value);
 }
-pub fn newRConstLong(irg: ?*ir_graph, mode: ?*ir_mode, value: i64) ?*ir_node {
-    return low_level.new_r_Const_long(irg, mode, value);
+pub fn newRConstLong(irg: ?*ir_graph, mode: IrMode, value: i64) ?*ir_node {
+    return low_level.new_r_Const_long(irg, resolveMode(mode), value);
 }
-pub fn newDConstLong(db: ?*dbg_info, mode: ?*ir_mode, value: i64) ?*ir_node {
-    return low_level.new_d_Const_long(db, mode, value);
+pub fn newDConstLong(db: ?*dbg_info, mode: IrMode, value: i64) ?*ir_node {
+    return low_level.new_d_Const_long(db, resolveMode(mode), value);
 }
-pub fn newConstLong(mode: ?*ir_mode, value: i64) ?*ir_node {
-    return low_level.new_Const_long(mode, value);
+pub fn newConstLong(mode: IrMode, value: i64) ?*ir_node {
+    return low_level.new_Const_long(resolveMode(mode), value);
 }
 pub fn newRdPhiLoop(db: ?*dbg_info, block: ?*ir_node, arity: i32, in: [*]?*ir_node) ?*ir_node {
     return low_level.new_rd_Phi_loop(db, block, arity, in);
@@ -5877,11 +6085,11 @@ pub fn getCurBlock() ?*ir_node {
 pub fn getRCurBlock(irg: ?*ir_graph) ?*ir_node {
     return low_level.get_r_cur_block(irg);
 }
-pub fn getValue(pos: i32, mode: ?*ir_mode) ?*ir_node {
-    return low_level.get_value(pos, mode);
+pub fn getValue(pos: i32, mode: IrMode) ?*ir_node {
+    return low_level.get_value(pos, resolveMode(mode));
 }
-pub fn getRValue(irg: ?*ir_graph, pos: i32, mode: ?*ir_mode) ?*ir_node {
-    return low_level.get_r_value(irg, pos, mode);
+pub fn getRValue(irg: ?*ir_graph, pos: i32, mode: IrMode) ?*ir_node {
+    return low_level.get_r_value(irg, pos, resolveMode(mode));
 }
 pub fn irGuessMode(pos: i32) ?*ir_mode {
     return low_level.ir_guess_mode(pos);
@@ -6756,8 +6964,8 @@ pub fn irgAssertVerify(irg: ?*ir_graph) void {
 pub fn lowerCopyb(irg: ?*ir_graph, max_small_size: u32, min_large_size: u32, allow_misalignments: i32) void {
     return low_level.lower_CopyB(irg, max_small_size, min_large_size, allow_misalignments);
 }
-pub fn lowerSwitch(irg: ?*ir_graph, small_switch: u32, spare_size: u32, selector_mode: ?*ir_mode) void {
-    return low_level.lower_switch(irg, small_switch, spare_size, selector_mode);
+pub fn lowerSwitch(irg: ?*ir_graph, small_switch: u32, spare_size: u32, selector_mode: IrMode) void {
+    return low_level.lower_switch(irg, small_switch, spare_size, resolveMode(selector_mode));
 }
 pub fn lowerHighlevelGraph(irg: ?*ir_graph) void {
     return low_level.lower_highlevel_graph(irg);
@@ -7011,20 +7219,20 @@ pub fn irTimerElapsedUsec(timer: ?*const ir_timer_t) u64 {
 pub fn irTimerElapsedSec(timer: ?*const ir_timer_t) f64 {
     return low_level.ir_timer_elapsed_sec(timer);
 }
-pub fn newTarvalFromStr(str: [*]const u8, len: usize, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.new_tarval_from_str(str, len, mode);
+pub fn newTarvalFromStr(str: [*]const u8, len: usize, mode: IrMode) ?*ir_tarval {
+    return low_level.new_tarval_from_str(str, len, resolveMode(mode));
 }
-pub fn newIntegerTarvalFromStr(str: [*]const u8, len: usize, negative: i32, base: u8, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.new_integer_tarval_from_str(str, len, negative, base, mode);
+pub fn newIntegerTarvalFromStr(str: [*]const u8, len: usize, negative: i32, base: u8, mode: IrMode) ?*ir_tarval {
+    return low_level.new_integer_tarval_from_str(str, len, negative, base, resolveMode(mode));
 }
-pub fn newTarvalFromLong(l: i64, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.new_tarval_from_long(l, mode);
+pub fn newTarvalFromLong(l: i64, mode: IrMode) ?*ir_tarval {
+    return low_level.new_tarval_from_long(l, resolveMode(mode));
 }
-pub fn newTarvalFromBytes(buf: [*]const u8, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.new_tarval_from_bytes(buf, mode);
+pub fn newTarvalFromBytes(buf: [*]const u8, mode: IrMode) ?*ir_tarval {
+    return low_level.new_tarval_from_bytes(buf, resolveMode(mode));
 }
-pub fn newTarvalNan(mode: ?*ir_mode, signaling: i32, payload: ?*const ir_tarval) ?*ir_tarval {
-    return low_level.new_tarval_nan(mode, signaling, payload);
+pub fn newTarvalNan(mode: IrMode, signaling: i32, payload: ?*const ir_tarval) ?*ir_tarval {
+    return low_level.new_tarval_nan(resolveMode(mode), signaling, payload);
 }
 pub fn tarvalToBytes(buffer: [*]u8, tv: ?*const ir_tarval) void {
     return low_level.tarval_to_bytes(buffer, tv);
@@ -7035,11 +7243,11 @@ pub fn getTarvalLong(tv: ?*const ir_tarval) i64 {
 pub fn tarvalIsLong(tv: ?*const ir_tarval) i32 {
     return low_level.tarval_is_long(tv);
 }
-pub fn newTarvalFromDouble(d: f64, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.new_tarval_from_double(d, mode);
+pub fn newTarvalFromDouble(d: f64, mode: IrMode) ?*ir_tarval {
+    return low_level.new_tarval_from_double(d, resolveMode(mode));
 }
-pub fn newTarvalFromLongDouble(d: f64, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.new_tarval_from_long_double(d, mode);
+pub fn newTarvalFromLongDouble(d: f64, mode: IrMode) ?*ir_tarval {
+    return low_level.new_tarval_from_long_double(d, resolveMode(mode));
 }
 pub fn getTarvalDouble(tv: ?*const ir_tarval) f64 {
     return low_level.get_tarval_double(tv);
@@ -7089,11 +7297,11 @@ pub fn tarvalGetWrapOnOverflow() i32 {
 pub fn tarvalCmp(a: ?*const ir_tarval, b: ?*const ir_tarval) ir_relation {
     return @as(ir_relation, @enumFromInt(low_level.tarval_cmp(a, b)));
 }
-pub fn tarvalConvertTo(src: ?*const ir_tarval, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.tarval_convert_to(src, mode);
+pub fn tarvalConvertTo(src: ?*const ir_tarval, mode: IrMode) ?*ir_tarval {
+    return low_level.tarval_convert_to(src, resolveMode(mode));
 }
-pub fn tarvalBitcast(src: ?*const ir_tarval, mode: ?*ir_mode) ?*ir_tarval {
-    return low_level.tarval_bitcast(src, mode);
+pub fn tarvalBitcast(src: ?*const ir_tarval, mode: IrMode) ?*ir_tarval {
+    return low_level.tarval_bitcast(src, resolveMode(mode));
 }
 pub fn tarvalNot(a: ?*const ir_tarval) ?*ir_tarval {
     return low_level.tarval_not(a);

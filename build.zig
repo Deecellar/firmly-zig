@@ -20,7 +20,7 @@ pub fn build(b: *std.Build) void {
         .name = "firm",
         .root_module = libfirm_mod,
     });
-    
+
     if (target.result.os.tag == .windows) {
         libfirm_mod.linkSystemLibrary("regex", .{});
         libfirm_mod.linkSystemLibrary("winmm", .{});
@@ -71,7 +71,7 @@ pub fn build(b: *std.Build) void {
     libfirm_mod.addIncludePath(libfirm_dep.path("ir/stat"));
     libfirm_mod.addIncludePath(libfirm_dep.path("ir/tr"));
     libfirm_mod.addIncludePath(libfirm_dep.path("ir/tv"));
-    
+
     libfirm_mod.addIncludePath(gen_dir.path(b, "include"));
     libfirm_mod.addIncludePath(gen_dir.path(b, "include/libfirm"));
     libfirm_mod.addIncludePath(gen_dir.path(b, "ir/ir"));
@@ -368,17 +368,17 @@ pub fn build(b: *std.Build) void {
 
 fn addBackend(b: *std.Build, libfirm_mod: *std.Build.Module, libfirm_dep: *std.Build.Dependency, name: []const u8) void {
     const libfirm_path = libfirm_dep.path("");
-    
+
     const backend_dir = b.fmt("ir/be/{s}", .{name});
     libfirm_mod.addIncludePath(libfirm_dep.path(backend_dir));
-    
+
     if (std.mem.eql(u8, name, "amd64") or std.mem.eql(u8, name, "ia32")) {
         libfirm_mod.addIncludePath(libfirm_dep.path("ir/be/ia32"));
     }
 
     const be_scripts = libfirm_dep.path("ir/be/scripts");
     const spec = libfirm_dep.path(b.fmt("ir/be/{s}/{s}_spec.pl", .{ name, name }));
-    
+
     const generators = &[_][]const u8{
         "generate_emitter.pl",
         "generate_regalloc_if.pl",
@@ -391,14 +391,14 @@ fn addBackend(b: *std.Build, libfirm_mod: *std.Build.Module, libfirm_dep: *std.B
         run.addFileArg(spec);
         const out_dir = run.addOutputDirectoryArg("be_gen");
         libfirm_mod.addIncludePath(out_dir);
-        
+
         const gen_c_name = if (std.mem.eql(u8, gen_script, "generate_emitter.pl"))
             b.fmt("gen_{s}_emitter.c", .{name})
         else if (std.mem.eql(u8, gen_script, "generate_regalloc_if.pl"))
             b.fmt("gen_{s}_regalloc_if.c", .{name})
         else
             b.fmt("gen_{s}_new_nodes.c", .{name});
-            
+
         libfirm_mod.addCSourceFiles(.{
             .root = out_dir,
             .files = &.{gen_c_name},
